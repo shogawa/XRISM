@@ -18,3 +18,5 @@ stopsys=SKY instmap=CALDB qefile=CALDB contamifile=CALDB vigfile=CALDB obffile=C
 fwfile=CALDB gvfile=CALDB maskcalsrc=yes fwtype=FILE specmode=MONO specfile=spec.fits \
 specform=FITS evperchan=DEFAULT abund=1 cols=0 covfac=1 clobber=yes chatter=1
 logfile=make_expo_${obsid}rsl_p0px1000.log
+
+rm -fr pfiles

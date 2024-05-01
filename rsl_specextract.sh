@@ -25,3 +25,5 @@ save spec ${obsid}rsl_pix.pha clobber=yes
 exit
 no
 EOF
+
+rm -fr pfiles

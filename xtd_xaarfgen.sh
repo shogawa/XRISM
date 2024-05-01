@@ -22,8 +22,6 @@ coordpnt=`coordpnt input="$XDETX0,$XDETY0" outfile=NONE telescop=XRISM instrume=
 ra=$(echo "$coordpnt" | awk '{print $4}')
 dec=$(echo "$coordpnt" | awk '{print $5}')
 
-rm ~/pfiles/xaarfgen.par
-rm ~/pfiles/xaxmaarfgen.par
 #rmf=$2
 #regionfile=$3
 
@@ -37,3 +35,5 @@ teldeffile=CALDB qefile=CALDB contamifile=CALDB obffile=CALDB fwfile=CALDB \
 onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
 frontreffile=CALDB backreffile=CALDB pcolreffile=CALDB \
 scatterfile=CALDB mode=h clobber=yes seed=7 imgfile=NONE
+
+rm -fr pfiles

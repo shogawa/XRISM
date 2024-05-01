@@ -19,3 +19,5 @@ rslmkrmf infile=${obsid}rsl_p0px1000_cl2.evt outfileroot=${obsid}rsl_pix_S regmo
 
 #rslmkrmf infile=${obsid}rsl_p0px1000_cl.evt.gz outfileroot=${obsid}_allpix_S regmode=DET whichrmf=S resolist=0 regionfile=ALLPIX
 #rslmkrmf infile=xa${obsid}rsl_p0px1000_cl.evt outfileroot=${obsid}_allpix_L regmode=DET whichrmf=L resolist=0 regionfile=ALLPIX eminin=0.0 dein=0.5 nchanin=60000 useingrd=no eminout=0.0 deout=0.5 nchanout=60000
+
+rm -fr pfiles

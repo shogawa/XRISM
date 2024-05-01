@@ -32,3 +32,5 @@ save image ${obsid}xtd_p0${dataclass}_detimg.fits
 exit
 no
 EOF
+
+rm -fr pfiles

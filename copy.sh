@@ -1,6 +1,7 @@
 mkdir analysis
 
 cd analysis
+pwd
 obsid=$1
 ln -sf ../resolve/event_cl/${obsid}rsl_p0px1* .
 ln -sf ../resolve/event_uf/${obsid}rsl_px1000_exp.gti.gz .

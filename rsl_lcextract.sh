@@ -25,3 +25,5 @@ extr curve exposure=0.8
 save curve ${obsid}rsl_allpix_b128_lc.fits clobber=yes
 exit
 no
+
+rm -fr pfiles

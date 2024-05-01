@@ -19,3 +19,5 @@ outmaptype=EXPOSURE delta=20.0 numphi=1 stopsys=SKY instmap=CALDB qefile=CALDB \
 contamifile=CALDB vigfile=CALDB obffile=CALDB fwfile=CALDB gvfile=CALDB maskcalsrc=yes \
 fwtype=FILE specmode=MONO specfile=spec.fits specform=FITS evperchan=DEFAULT abund=1 \
 cols=0 covfac=1 clobber=yes chatter=1 logfile=make_expo_${obsid}xtd_p0${dataclass}.log
+
+rm -fr pfiles

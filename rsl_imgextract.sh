@@ -26,3 +26,5 @@ save image ${obsid}rsl_p0px1000_detimg.fits clobber=yes
 exit
 no
 EOF
+
+rm -fr pfiles

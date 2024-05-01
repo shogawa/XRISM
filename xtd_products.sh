@@ -29,3 +29,5 @@ zsh $dir_scripts/xtd_xaexpmap.sh $obsid $dataclass
 zsh $dir_scripts/xtd_xaarfgen.sh $obsid $dataclass
 zsh $dir_scripts/grppha.sh ${obsid}xtd_src.pi ${obsid}xtd_srgr1.pi min 1
 zsh $dir_scripts/bkg_rmf_arf.sh ${obsid}xtd_srgr1.pi ${obsid}xtd_bgd.pi ${obsid}xtd_p0${dataclass}_src.rmf ${obsid}xtd_p0${dataclass}_ptsrc.arf
+
+rm -fr pfiles

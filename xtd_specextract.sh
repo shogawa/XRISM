@@ -39,3 +39,5 @@ save spectrum ${obsid}xtd_src.pi clobber=yes
 exit
 no
 EOF
+
+rm -fr pfiles
