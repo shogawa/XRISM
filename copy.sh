@@ -7,10 +7,10 @@ ln -sf ../resolve/event_uf/${obsid}rsl_px1000_exp.gti.gz .
 ln -sf ../auxil/${obsid}.ehk.gz .
 ln -sf ../xtend/event_cl/${obsid}xtd_p0300* .
 ln -sf ../xtend/event_uf/${obsid}xtd_p0300*.bimg.gz .
-ln -sf ../xtend/event_uf/${obsid}xtd_p0300*.fpix.gz .
+ln -sf ../xtend/event_uf/${obsid}xtd_a0300*.fpix.gz .
 ln -sf ../xtend/event_cl/${obsid}xtd_p031* .
 ln -sf ../xtend/event_uf/${obsid}xtd_p031*.bimg.gz .
-ln -sf ../xtend/event_uf/${obsid}xtd_p031*.fpix.gz .
+ln -sf ../xtend/event_uf/${obsid}xtd_a031*.fpix.gz .
 
 
 cp $HEADAS/refdata/region_RSL_det.reg .
