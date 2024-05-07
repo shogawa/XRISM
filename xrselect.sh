@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 
 export HEADAS=/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31
 source $HEADAS/headas-init.sh
@@ -13,7 +13,7 @@ var=$1
 xselect<<EOF
 xsel
 no
-read event ${var}rsl_p0px1000_cl.evt.gz 
+read event ${var}rsl_p0px1000_cl.evt.gz
 ./
 yes
 filter column "PIXEL=0:11,13:35"
