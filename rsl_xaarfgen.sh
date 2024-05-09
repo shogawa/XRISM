@@ -1,10 +1,10 @@
 #!/bin/sh
 
 export HEADAS=/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31
-source $HEADAS/headas-init.sh
+. $HEADAS/headas-init.sh
 
 export CALDB=/home/ogawa/work/tools/caldb
-source $CALDB/software/tools/caldbinit.sh
+. $CALDB/software/tools/caldbinit.sh
 
 obsid=$1
 
@@ -31,9 +31,9 @@ regionfile=$3
 
 
 xaarfgen xrtevtfile=raytrace_${obsid}rsl_p0px1000_ptsrc.fits \
-source_ra=$ra source_dec=$dec telescop=XRISM instrume=RESOLVE \
+._ra=$ra ._dec=$dec telescop=XRISM instrume=RESOLVE \
 emapfile=${obsid}rsl_p0px1000.expo regmode=DET regionfile=${regionfile} \
-sourcetype=POINT rmffile=${rmf} erange="0.3 18.0 0 0" \
+.type=POINT rmffile=${rmf} erange="0.3 18.0 0 0" \
 outfile=${obsid}rsl_p0px1000_ptsrc.arf numphoton=300000 minphoton=100 teldeffile=CALDB \
 qefile=CALDB contamifile=CALDB obffile=CALDB fwfile=CALDB gatevalvefile=CALDB \
 onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
