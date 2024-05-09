@@ -31,9 +31,9 @@ regionfile=$3
 
 
 xaarfgen xrtevtfile=raytrace_${obsid}rsl_p0px1000_ptsrc.fits \
-._ra=$ra ._dec=$dec telescop=XRISM instrume=RESOLVE \
+source_ra=$ra source_dec=$dec telescop=XRISM instrume=RESOLVE \
 emapfile=${obsid}rsl_p0px1000.expo regmode=DET regionfile=${regionfile} \
-.type=POINT rmffile=${rmf} erange="0.3 18.0 0 0" \
+sourcetype=POINT rmffile=${rmf} erange="0.3 18.0 0 0" \
 outfile=${obsid}rsl_p0px1000_ptsrc.arf numphoton=300000 minphoton=100 teldeffile=CALDB \
 qefile=CALDB contamifile=CALDB obffile=CALDB fwfile=CALDB gatevalvefile=CALDB \
 onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
