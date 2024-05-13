@@ -10,9 +10,9 @@ mkdir -p pfiles
 export PFILES="./pfiles;$HEADAS/syspfiles"
 
 obsid=$1
-RA_NOM=`fkeyprint ${obsid}rsl_p0px1000_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
-DEC_NOM=`fkeyprint ${obsid}rsl_p0px1000_cl.evt.gz+0 DEC_NOM | grep deg | awk '{print $3}'`
-PA_NOM=`fkeyprint ${obsid}rsl_p0px1000_cl.evt.gz+0 PA_NOM | grep deg | awk '{print $3}'`
+RA_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
+DEC_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 DEC_NOM | grep deg | awk '{print $3}'`
+PA_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 PA_NOM | grep deg | awk '{print $3}'`
 echo $RA_NOM $DEC_NOM $PA_NOM
 
 RDETX0=3.5
