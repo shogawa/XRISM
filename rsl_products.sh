@@ -12,8 +12,8 @@ dir_analysis=$1
 obsid=$2
 dir_scripts=`pwd`
 cd $dir_analysis
+sh $dir_scripts/rsl_telgti_screen.sh $obsid
 sh $dir_scripts/copy.sh $obsid
-cd $dir_analysis/analysis
 mkdir -p pfiles
 export PFILES="$dir_analysis/analysis;$HEADAS/syspfiles"
 sh $dir_scripts/rsl_screening.sh $obsid
