@@ -14,8 +14,7 @@ dataclass=$3
 dir_scripts=`pwd`
 cd $dir_analysis
 
-sh $dir_scripts/copy.sh $obsid
-cd $dir_analysis/analysis
+sh $dir_scripts/xtd_copy.sh $obsid
 mkdir -p pfiles
 export PFILES="$dir_analysis/analysis;$HEADAS/syspfiles"
 #sh $dir_scripts/xtd_screening.sh $obsid $dataclass
