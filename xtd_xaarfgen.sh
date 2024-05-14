@@ -26,6 +26,7 @@ dec=$(echo "$coordpnt" | awk '{print $5}')
 
 #rmf=$2
 #regionfile=$3
+rm -rf raytrace_${obsid}xtd_p0${dataclass}_boxreg_ptsrc.fits
 
 xaarfgen xrtevtfile=raytrace_${obsid}xtd_p0${dataclass}_boxreg_ptsrc.fits \
 source_ra=$ra source_dec=$dec telescop=XRISM instrume=XTEND \

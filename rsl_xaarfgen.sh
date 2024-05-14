@@ -28,6 +28,7 @@ rm ~/pfiles/xaxmaarfgen.par
 rmf=$2
 regionfile=$3
 
+rm -rf raytrace_${obsid}rsl_p0px1000_ptsrc.fits
 
 xaarfgen xrtevtfile=raytrace_${obsid}rsl_p0px1000_ptsrc.fits \
 source_ra=$ra source_dec=$dec telescop=XRISM instrume=RESOLVE \
