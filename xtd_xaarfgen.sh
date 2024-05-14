@@ -12,9 +12,9 @@ export PFILES="./pfiles;$HEADAS/syspfiles"
 obsid=$1
 dataclass=$2
 
-RA_NOM=`fkeyprint ${obsid}rsl_p0px1000_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
-DEC_NOM=`fkeyprint ${obsid}rsl_p0px1000_cl.evt.gz+0 DEC_NOM | grep deg | awk '{print $3}'`
-PA_NOM=`fkeyprint ${obsid}rsl_p0px1000_cl.evt.gz+0 PA_NOM | grep deg | awk '{print $3}'`
+RA_NOM=`fkeyprint ../xtend/event_cl/${obsid}xtd_p0${dataclass}_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
+DEC_NOM=`fkeyprint ../xtend/event_cl/${obsid}xtd_p0${dataclass}_cl.evt.gz+0 DEC_NOM | grep deg | awk '{print $3}'`
+PA_NOM=`fkeyprint ../xtend/event_cl/${obsid}xtd_p0${dataclass}_cl.evt.gz+0 PA_NOM | grep deg | awk '{print $3}'`
 
 XDETX0=`grep box region_xtd_src.reg | awk -F "[(),]" '{print $2}'`
 XDETY0=`grep box region_xtd_src.reg | awk -F "[(),]" '{print $3}'`
