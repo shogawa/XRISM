@@ -22,7 +22,7 @@ sh $dir_scripts/xtd_imgextract.sh $obsid $dataclass
 echo "ok?"
 read -q
 sh $dir_scripts/xtd_specextract.sh $obsid $dataclass
-sh $dir_scripts/xtd_lcextract.sh $obsid $dataclass
+#sh $dir_scripts/xtd_lcextract.sh $obsid $dataclass
 sh $dir_scripts/xtd_rmf.sh $obsid $dataclass
 sh $dir_scripts/xtd_xaexpmap.sh $obsid $dataclass
 sh $dir_scripts/xtd_xaarfgen.sh $obsid $dataclass
