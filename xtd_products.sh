@@ -19,8 +19,6 @@ mkdir -p pfiles
 export PFILES="$dir_analysis/analysis;$HEADAS/syspfiles"
 #sh $dir_scripts/xtd_screening.sh $obsid $dataclass
 sh $dir_scripts/xtd_imgextract.sh $obsid $dataclass
-echo "ok?"
-read -q
 sh $dir_scripts/xtd_specextract.sh $obsid $dataclass
 #sh $dir_scripts/xtd_lcextract.sh $obsid $dataclass
 sh $dir_scripts/xtd_rmf.sh $obsid $dataclass
