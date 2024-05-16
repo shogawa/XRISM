@@ -19,7 +19,7 @@ export PFILES="$dir_analysis/analysis;$HEADAS/syspfiles"
 sh $dir_scripts/rsl_screening.sh $obsid
 sh $dir_scripts/rsl_imgextract.sh $obsid
 sh $dir_scripts/rsl_specextract.sh $obsid
-sh $dir_scripts/rsl_lcextract.sh $obsid
+sh $dir_scripts/rsl_lcextract.sh $obsid 128
 sh $dir_scripts/rsl_rmf.sh $obsid
 sh $dir_scripts/rsl_xaexpmap.sh $obsid
 sh $dir_scripts/rsl_xaarfgen.sh $obsid ${obsid}rsl_pix_S.rmf region_RSL_det_27.reg
