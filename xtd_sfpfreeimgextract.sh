@@ -8,8 +8,9 @@ export CALDB=/home/ogawa/work/tools/caldb
 
 export XSELECT_MDB=/home/ogawa/work/analysis/xrism/xselect.mdb.xrism
 
-mkdir -p pfiles
-export PFILES="./pfiles;$HEADAS/syspfiles"
+pfiles_dir=pfiles
+mkdir -p $pfiles_dir
+export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
 obsid=$1
 dataclass=$2
@@ -28,4 +29,4 @@ exit
 no
 EOF
 
-rm -fr pfiles
+rm -fr $pfiles_dir

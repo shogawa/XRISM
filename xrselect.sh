@@ -8,6 +8,10 @@ export CALDB=/home/ogawa/work/tools/caldb
 
 export XSELECT_MDB=/home/ogawa/work/analysis/xrism/xselect.mdb.xrism
 
+pfiles_dir=pfiles
+mkdir -p $pfiles_dir
+export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
+
 var=$1
 
 xselect<<EOF
@@ -25,3 +29,5 @@ save curve ${var}rsl.lc clobber=yes
 exit
 no
 EOF
+
+rm -fr $pfiles_dir

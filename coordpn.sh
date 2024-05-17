@@ -6,8 +6,9 @@ export HEADAS=/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-li
 export CALDB=/home/ogawa/work/tools/caldb
 . $CALDB/software/tools/caldbinit.sh
 
-mkdir -p pfiles
-export PFILES="./pfiles;$HEADAS/syspfiles"
+pfiles_dir=pfiles
+mkdir -p $pfiles_dir
+export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
 obsid=$1
 RA_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
@@ -25,4 +26,4 @@ XDETY0=`grep box region_xtd_src.reg | awk -F "[(),]" '{print $3}'`
 coordpnt input="$RDETX0,$RDETY0" outfile=NONE telescop=XRISM instrume=RESOLVE teldeffile=CALDB startsys=DET stopsys=RADEC ra=${RA_NOM} dec=${DEC_NOM} roll=${PA_NOM} ranom=${RA_NOM} decnom=${DEC_NOM} clobber=yes
 coordpnt input="$XDETX0,$XDETY0" outfile=NONE telescop=XRISM instrume=XTEND teldeffile=CALDB startsys=DET stopsys=RADEC ra=${RA_NOM} dec=${DEC_NOM} roll=${PA_NOM} ranom=${RA_NOM} decnom=${DEC_NOM} clobber=yes
 
-rm -fr pfiles
+rm -fr $pfiles_dir

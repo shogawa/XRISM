@@ -15,8 +15,6 @@ dir_scripts=`pwd`
 cd $dir_analysis
 
 sh $dir_scripts/xtd_copy.sh $obsid
-mkdir -p pfiles
-export PFILES="$dir_analysis/analysis;$HEADAS/syspfiles"
 #sh $dir_scripts/xtd_screening.sh $obsid $dataclass
 sh $dir_scripts/xtd_imgextract.sh $obsid $dataclass
 sh $dir_scripts/xtd_specextract.sh $obsid $dataclass
@@ -26,5 +24,3 @@ sh $dir_scripts/xtd_xaexpmap.sh $obsid $dataclass
 sh $dir_scripts/xtd_xaarfgen.sh $obsid $dataclass
 sh $dir_scripts/grppha.sh ${obsid}xtd_src.pi ${obsid}xtd_srgr1.pi min 1
 sh $dir_scripts/bkg_rmf_arf.sh ${obsid}xtd_srgr1.pi ${obsid}xtd_bgd.pi ${obsid}xtd_p0${dataclass}_src.rmf ${obsid}xtd_p0${dataclass}_ptsrc.arf
-
-rm -fr pfiles

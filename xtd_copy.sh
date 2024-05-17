@@ -2,12 +2,9 @@
 
 obsid=$1
 ln -sf ../auxil/${obsid}.ehk.gz .
-ln -sf ../xtend/event_cl/${obsid}xtd_p0300* .
-ln -sf ../xtend/event_uf/${obsid}xtd_p0300*.bimg.gz .
-ln -sf ../xtend/event_uf/${obsid}xtd_a0300*.fpix.gz .
-ln -sf ../xtend/event_cl/${obsid}xtd_p031* .
-ln -sf ../xtend/event_uf/${obsid}xtd_p031*.bimg.gz .
-ln -sf ../xtend/event_uf/${obsid}xtd_a031*.fpix.gz .
+ln -sf ../xtend/event_cl/${obsid}xtd_p0* .
+ln -sf ../xtend/event_uf/${obsid}xtd_p0*.bimg.gz .
+ln -sf ../xtend/event_uf/${obsid}xtd_a0*.fpix.gz .
 
 cat <<EOF > exclude_calsources.reg
 physical

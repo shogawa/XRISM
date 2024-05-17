@@ -6,8 +6,9 @@ export HEADAS=/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-li
 export CALDB=/home/ogawa/work/tools/caldb
 . $CALDB/software/tools/caldbinit.sh
 
-mkdir -p pfiles
-export PFILES="./pfiles;$HEADAS/syspfiles"
+pfiles_dir=pfiles
+mkdir -p $pfiles_dir
+export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
 obsid=$1
 
@@ -23,4 +24,4 @@ fthedit ${obsid}rsl_p0px1000_cl_notelgti.evt+1 TLMIN46 a 0
 
 ln -sf ${obsid}rsl_p0px1000_cl_notelgti.evt ${obsid}rsl_p0px1000_cl.evt.gz
 
-rm -fr pfiles
+rm -fr $pfiles_dir

@@ -6,8 +6,9 @@ export HEADAS=/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-li
 export CALDB=/home/ogawa/work/tools/caldb
 . $CALDB/software/tools/caldbinit.sh
 
-mkdir -p pfiles
-export PFILES="./pfiles;$HEADAS/syspfiles"
+pfiles_dir=pfiles
+mkdir -p $pfiles_dir
+export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
 obsid=$1
 dataclass=$2
@@ -39,4 +40,4 @@ onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
 frontreffile=CALDB backreffile=CALDB pcolreffile=CALDB \
 scatterfile=CALDB mode=h clobber=yes seed=7 imgfile=NONE
 
-rm -fr pfiles
+rm -fr $pfiles_dir

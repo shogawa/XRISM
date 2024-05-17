@@ -7,6 +7,16 @@ export CALDB=/home/ogawa/work/tools/caldb
 . $CALDB/software/tools/caldbinit.sh
 
 obsid=$1
+rmf=$2
+regionfile=$3
+
+pfiles_dir=pfiles
+mkdir -p $pfiles_dir
+export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
+
+rm $pfiles_dir/xaarfgen.par
+rm $pfiles_dir/xaxmaarfgen.par
+
 RA_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
 DEC_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 DEC_NOM | grep deg | awk '{print $3}'`
 PA_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 PA_NOM | grep deg | awk '{print $3}'`
@@ -18,15 +28,6 @@ coordpnt=`coordpnt input="$RDETX0,$RDETY0" outfile=NONE telescop=XRISM instrume=
 
 ra=$(echo "$coordpnt" | awk '{print $4}')
 dec=$(echo "$coordpnt" | awk '{print $5}')
-
-mkdir -p pfiles
-export PFILES="./pfiles;$HEADAS/syspfiles"
-
-rm ~/pfiles/xaarfgen.par
-rm ~/pfiles/xaxmaarfgen.par
-
-rmf=$2
-regionfile=$3
 
 rm -rf raytrace_${obsid}rsl_p0px1000_ptsrc.fits
 
@@ -40,4 +41,4 @@ onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
 frontreffile=CALDB backreffile=CALDB pcolreffile=CALDB scatterfile=CALDB \
 mode=h clobber=yes seed=7 imgfile=NONE
 
-rm -fr pfiles
+rm -fr $pfiles_dir
