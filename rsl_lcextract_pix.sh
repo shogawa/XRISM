@@ -26,6 +26,7 @@ read event ${obsid}rsl_p0px1000_cl2.evt
 yes
 set image det
 filter pha_cutoff 4000 20000
+filter column "PIXEL=${pix}:${pix}"
 set binsize $binsize
 extr curve exposure=0.8
 save curve ${obsid}rsl_pix${pix0}_b${binsize}_lc.fits clobber=yes
