@@ -28,5 +28,6 @@ extr curve exposure=0.8
 save curve ${obsid}rsl_allpix_b${binsize}_lc.fits clobber=yes
 exit
 no
+EOF
 
 rm -fr $pfiles_dir
