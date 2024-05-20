@@ -18,6 +18,9 @@ mkdir -p each_pixel
 
 for pix in `seq 0 35`
 do
+if [ pix -eq 12 ]; then
+echo "pix = $pix"
+else
 pix0=`printf "%02d" ${pix}`
 sh $dir_scripts/rsl_specextract_pix.sh $obsid $pix
 sh $dir_scripts/rsl_lcextract_pix.sh $obsid $pix $lcbin
@@ -28,4 +31,5 @@ cd each_pixel
 sh $dir_scripts/grppha.sh ${obsid}rsl_pix${pix0}.pha ${obsid}rsl_pix${pix0}gr1.pha min 1
 sh $dir_scripts/bkg_rmf_arf.sh ${obsid}rsl_pix${pix0}gr1.pha NONE ${obsid}rsl_pix${pix0}_S.rmf ${obsid}rsl_p0px1000_ptsrc_pix${pix0}.arf
 cd ../
+fi
 done
