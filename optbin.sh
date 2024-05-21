@@ -7,9 +7,10 @@ mkdir -p $pfiles_dir
 export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
 infile=$1
-backfile=$2
-respfile=$3
+outfile=$2
+backfile=$3
+respfile=$4
 
-ftgrouppha infile=$infile backfile=$backfile respfile=$respfile outfile=ifile_optbin.pha grouptype=opt
+ftgrouppha infile=$infile backfile=$backfile respfile=$respfile outfile=$outfile grouptype=opt
 
 rm -rf $pfiles_dir

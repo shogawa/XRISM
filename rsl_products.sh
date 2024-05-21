@@ -13,7 +13,7 @@ obsid=$2
 dir_scripts=`pwd`
 cd $dir_analysis
 #sh $dir_scripts/rsl_telgti_screen.sh $obsid
-sh $dir_scripts/copy.sh $obsid
+sh $dir_scripts/rsl_copy.sh $obsid
 sh $dir_scripts/rsl_screening.sh $obsid
 sh $dir_scripts/rsl_imgextract.sh $obsid
 sh $dir_scripts/rsl_specextract.sh $obsid

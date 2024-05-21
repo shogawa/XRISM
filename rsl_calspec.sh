@@ -14,11 +14,11 @@ export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
 obsid=$1
 
-ftcopy "${CALDB}/data/xrism/resolve/bcf/response/xa_rsl_rmfparam_20190101v005.fits.gz[GAUSFWHM1]" xa_rsl_rmfparam_fordiagrmf.fits
+ftcopy "${CALDB}/data/xrism/resolve/bcf/response/xa_rsl_rmfparam_20190101v005.fits.gz[GAUSFWHM1]" xa_rsl_rmfparam_fordiagrmf.fits clobber=yes
 
 ftcalc 'xa_rsl_rmfparam_fordiagrmf.fits[GAUSFWHM1]' xa_rsl_rmfparam_fordiagrmf.fits PIXEL0 0.000000001 rows=- clobber=yes
 
-rslrmf NONE newdiag whichrmf=S rmfparamfile=xa_rsl_rmfparam_fordiagrmf.fits
+rslrmf NONE newdiag whichrmf=S rmfparamfile=xa_rsl_rmfparam_fordiagrmf.fits clobber=yes
 
 ln -sf ../../resolve/event_cl/${obsid}rsl_p0px5000_cl.evt.gz .
 
