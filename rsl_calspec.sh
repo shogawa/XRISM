@@ -29,7 +29,6 @@ read event ${obsid}rsl_p0px5000_cl.evt.gz
 ./
 yes
 filter pha_cutoff 0 59999
-filter column "PIXEL=${pix}:${pix}"
 filter column "PIXEL=0:11,13:26,28:35"
 extract spectrum
 save spec ${obsid}rsl_fe55.pha clobber=yes
