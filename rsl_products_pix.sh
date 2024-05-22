@@ -18,7 +18,7 @@ mkdir -p each_pixel
 
 for pix in `seq 0 35`
 do
-if [ pix -eq 12 ]; then
+if [ pix = 12 ]; then
 echo "pix = $pix"
 else
 pix0=`printf "%02d" ${pix}`
