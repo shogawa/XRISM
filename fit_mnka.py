@@ -92,8 +92,13 @@ for i, lorentsName in enumerate(modelLorents):
     getattr(m1, lorentsName).norm = lineNorm[i]
     getattr(m1, lorentsName).norm.frozen = True
 
+m1.gsmooth.Sig_6keV = 0.002
+
 m1.show()
 
+m1.gsmooth.Sig_6keV.frozen = True
+xs.Fit.perform()
+m1.gsmooth.Sig_6keV.frozen = False
 xs.Fit.perform()
 
 xs.Fit.error("1. 1,27")
@@ -102,15 +107,15 @@ xs.Fit.error("1. 2",True)
 errn = m1.gsmooth.Sig_6keV.values[0] - m1.gsmooth.Sig_6keV.error[0]
 errp = m1.gsmooth.Sig_6keV.error[1] - m1.gsmooth.Sig_6keV.values[0]
 value = m1.gsmooth.Sig_6keV.values[0]
-fwhm = np.array([value, errp, errn])*1000
-print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(value, errp, errn))
-print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(value*2.35, errp*2.35, errn*2.35))
+gsmooth = np.array([value, errp, errn])*1000
+print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth))
+print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2.35))
 
 errn = resp.gain.offset.values[0] - resp.gain.offset.error[0]
 errp = resp.gain.offset.error[1] - resp.gain.offset.values[0]
 value = resp.gain.offset.values[0]
 offset = np.array([value, errp, errn])*1000
-print("offset: {0}+{1}-{2}".format(value, errp, errn))
+print("offset: {0}+{1}-{2}".format(*offset))
 
 plot_data = plot_parameters("data del")
 
@@ -145,8 +150,8 @@ axes[1].plot([0.1,100],[0,0],"k")
 color=cmp(0)
 
 txt = target.replace('GC', 'GC ').replace('IC', 'IC ').replace('-', '$-$').replace('CenA', 'Centaurus A')
-txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*fwhm*2.35)
-txt += "\noffset: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*offset)
+txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth*2.35)
+txt += "\noffset: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*offset)
 axes[0].text(0.01, 0.70, txt, transform=axes[0].transAxes, size=12)
 
 
