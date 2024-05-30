@@ -24,7 +24,7 @@ def get_argument():
     argparser = ArgumentParser(description='This is the error calculation program.')
     argparser.add_argument('-ob', '--object', default='Circinus galaxy', help='object')
     argparser.add_argument('-f', '--file', default='xa000162000rsl_fe55.pha', help='spectra')
-    argparser.add_argument('-re', '--resp', default='newdiag.rmf', help='spectra')
+    argparser.add_argument('-re', '--resp', default='newdiag.rmf', help='responce')
     return argparser.parse_args()
 
 def getNearestValue(list, num, sidx="no"):

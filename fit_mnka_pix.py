@@ -24,7 +24,7 @@ def get_argument():
     argparser = ArgumentParser(description='This is the error calculation program.')
     argparser.add_argument('-ob', '--object', default='Circinus galaxy', help='object')
     argparser.add_argument('-f', '--file', default='xa000162000rsl_fe55.pha', help='spectra')
-    argparser.add_argument('-re', '--resp', default='newdiag.rmf', help='spectra')
+    argparser.add_argument('-re', '--resp', default='newdiag.rmf', help='responce')
     return argparser.parse_args()
 
 def getNearestValue(list, num, sidx="no"):
@@ -46,7 +46,7 @@ def plot_parameters(plot):
               ] for i in range(xs.AllData.nSpectra)]
     return plot_data
 
-def plot_resluts(plot_data, fwhm, offset, pixel):
+def plot_resluts(plot_data, gsmooth, offset, pixel):
     palette = sns.color_palette('pastel',16)
     cmp=ListedColormap(palette)
 
@@ -78,8 +78,8 @@ def plot_resluts(plot_data, fwhm, offset, pixel):
     color=cmp(0)
 
     txt = target.replace('GC', 'GC ').replace('IC', 'IC ').replace('-', '$-$').replace('CenA', 'Centaurus A')
-    txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*fwhm*2.35)
-    txt += "\noffset: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*offset*2.35)
+    txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*gsmooth*2.35)
+    txt += "\noffset: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*offset)
     axes[0].text(0.01, 0.70, txt, transform=axes[0].transAxes, size=12)
 
 
@@ -152,31 +152,34 @@ for i, lorentsName in enumerate(modelLorents):
     getattr(m1, lorentsName).norm = lineNorm[i]
     getattr(m1, lorentsName).norm.frozen = True
 
+m1.gsmooth.Sig_6keV = 0.002
+
 m1.show()
 
+m1.gsmooth.Sig_6keV.frozen = True
+xs.Fit.perform()
+m1.gsmooth.Sig_6keV.frozen = False
 xs.Fit.perform()
 
-xs.Fit.error("1,27")
-xs.Fit.error("2",True)
+xs.Fit.error("1. 1,27")
+xs.Fit.error("1. 2",True)
 
 errn = m1.gsmooth.Sig_6keV.values[0] - m1.gsmooth.Sig_6keV.error[0]
-errn = errn*1e3
 errp = m1.gsmooth.Sig_6keV.error[1] - m1.gsmooth.Sig_6keV.values[0]
-errp = errp*1e3
-value = m1.gsmooth.Sig_6keV.values[0]*1e3
-fwhm = np.array([value, errp, errn])
-print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(value, errp, errn))
-print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(value*2.35, errp*2.35, errn*2.35))
+value = m1.gsmooth.Sig_6keV.values[0]
+gsmooth = np.array([value, errp, errn])*1000
+print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth))
+print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2.35))
 
 errn = resp.gain.offset.values[0] - resp.gain.offset.error[0]
 errp = resp.gain.offset.error[1] - resp.gain.offset.values[0]
 value = resp.gain.offset.values[0]
-offset = np.array([value, errp, errn])
-print("{0}+{1}-{2}".format(value, errp, errn))
+offset = np.array([value, errp, errn])*1000
+print("offset: {0}+{1}-{2}".format(*offset))
 
 plot_data = plot_parameters("data del")
 
-fig = plot_resluts(plot_data, fwhm, offset, "ALL")
+fig = plot_resluts(plot_data, gsmooth, offset, "ALL")
 fig.savefig("{0}_mnka.pdf".format(target.replace(" ", "_")),bbox_inches='tight', dpi=300,transparent=True)
 m1.constant.factor = m1.constant.factor.values[0]/40.
 for pixel in range(36):
@@ -191,27 +194,28 @@ for pixel in range(36):
 
     resp.setPars("1,-0.01,0.01,0.5,1.5,5","0,0.01,-1,-1,1,1")
 
+    m1.gsmooth.Sig_6keV.frozen = True
+    xs.Fit.perform()
+    m1.gsmooth.Sig_6keV.frozen = False
     xs.Fit.perform()
     xs.Fit.error("1. 1,27")
     xs.Fit.error("1. 2",True)
 
     errn = m1.gsmooth.Sig_6keV.values[0] - m1.gsmooth.Sig_6keV.error[0]
-    errn = errn*1e3
     errp = m1.gsmooth.Sig_6keV.error[1] - m1.gsmooth.Sig_6keV.values[0]
-    errp = errp*1e3
-    value = m1.gsmooth.Sig_6keV.values[0]*1e3
-    fwhm = np.array([value, errp, errn])
-    print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(value, errp, errn))
-    print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(value*2.35, errp*2.35, errn*2.35))
+    value = m1.gsmooth.Sig_6keV.values[0]
+    gsmooth = np.array([value, errp, errn])*1000
+    print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth))
+    print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2.35))
 
     errn = resp.gain.offset.values[0] - resp.gain.offset.error[0]
     errp = resp.gain.offset.error[1] - resp.gain.offset.values[0]
     value = resp.gain.offset.values[0]
-    offset = np.array([value, errp, errn])
-    print("{0}+{1}-{2}".format(value, errp, errn))
+    offset = np.array([value, errp, errn])*1000
+    print("offset: {0}+{1}-{2}".format(*offset))
 
     plot_data = plot_parameters("data del")
 
-    fig = plot_resluts(plot_data, fwhm, offset, pixel)
+    fig = plot_resluts(plot_data, gsmooth, offset, pixel)
 
     fig.savefig("{0}_mnka_pix{1:02d}.pdf".format(target.replace(" ", "_"), pixel),bbox_inches='tight', dpi=300,transparent=True)
