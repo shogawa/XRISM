@@ -7,7 +7,7 @@ export CALDB=$TOOLS/caldb
 . $CALDB/software/tools/caldbinit.sh
 
 
-export XSELECT_MDB=$TOOLS/heasoft/xselect.mdb.xrism
+export XSELECT_MDB=$TOOLS/heasoft/xrism/xselect.mdb.xrism
 
 obsid=$1
 pix=$2
