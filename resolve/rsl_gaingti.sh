@@ -1,9 +1,9 @@
 #!/bin/sh
 
-export HEADAS=/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31
+export HEADAS=$TOOLS/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31
 . $HEADAS/headas-init.sh
 
-export CALDB=/home/ogawa/work/tools/caldb
+export CALDB=$TOOLS/caldb
 . $CALDB/software/tools/caldbinit.sh
 
 pfiles_dir=pfiles
