@@ -24,7 +24,7 @@ filter pha_cutoff 0 59999
 filter column "PIXEL=0:11,13:26,28:35"
 filter GRADE "0:0"
 extract spectrum
-save spec ${obsid}rsl_pix.pha clobber=yes
+save spec ${obsid}rsl_src.pha clobber=yes
 exit
 no
 EOF

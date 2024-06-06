@@ -22,8 +22,8 @@ sh $dir_scripts/rsl_specextract.sh $obsid
 sh $dir_scripts/rsl_lcextract.sh $obsid 128
 sh $dir_scripts/rsl_rmf.sh $obsid
 sh $dir_scripts/rsl_xaexpmap.sh $obsid
-sh $dir_scripts/rsl_xaarfgen.sh $obsid ${obsid}rsl_pix_S.rmf region_RSL_det_27.reg
-ftgrouppha infile=${obsid}rsl_pix.pha outfile=${obsid}rsl_pixgr1.pha grouptype=min groupscale=1
-fparkey NONE ${obsid}rsl_pixgr1.pha BACKFILE
-fparkey ${obsid}rsl_pix_S.rmf ${obsid}rsl_pixgr1.pha RESPFILE
-fparkey ${obsid}rsl_p0px1000_ptsrc.arf ${obsid}rsl_pixgr1.pha ANCRFILE
+sh $dir_scripts/rsl_xaarfgen.sh $obsid ${obsid}rsl_S.rmf region_RSL_det_27.reg
+ftgrouppha infile=${obsid}rsl_src.pha outfile=${obsid}rsl_srgr1.pha grouptype=min groupscale=1
+fparkey NONE ${obsid}rsl_srgr1.pha BACKFILE
+fparkey ${obsid}rsl_S.rmf ${obsid}rsl_srgr1.pha RESPFILE
+fparkey ${obsid}rsl_p0px1000_ptsrc.arf ${obsid}rsl_srgr1.pha ANCRFILE
