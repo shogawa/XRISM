@@ -27,6 +27,8 @@ dec=$(echo "$coordpnt" | awk '{print $5}')
 
 #rmf=$2
 #regionfile=$3
+rm -rf $pfiles_dir/xaarfgen.par
+rm -rf $pfiles_dir/xaxmaarfgen.par
 rm -rf raytrace_${obsid}xtd_p0${dataclass}_boxreg_ptsrc.fits
 
 xaarfgen xrtevtfile=raytrace_${obsid}xtd_p0${dataclass}_boxreg_ptsrc.fits \

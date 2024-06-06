@@ -14,8 +14,8 @@ pfiles_dir=pfiles
 mkdir -p $pfiles_dir
 export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
-rm $pfiles_dir/xaarfgen.par
-rm $pfiles_dir/xaxmaarfgen.par
+rm -rf $pfiles_dir/xaarfgen.par
+rm -rf $pfiles_dir/xaxmaarfgen.par
 
 RA_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 RA_NOM | grep deg | awk '{print $3}'`
 DEC_NOM=`fkeyprint ../resolve/event_cl/${obsid}rsl_p0px1000_cl.evt.gz+0 DEC_NOM | grep deg | awk '{print $3}'`

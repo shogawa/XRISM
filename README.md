@@ -1,8 +1,8 @@
 # XRISM Products Tools
 These scripts are based on the following:
-[XRISM Quick-Start Guide v2.1](https://xrism.isas.jaxa.jp/research/analysis/manuals/xrqr_v2.1.pdf)
-[Things to watch out for in pipeline-processed data](https://xrism-c2c.atlassian.net/wiki/spaces/XRISMPV/pages/140869909)
-[xrism_sdc_tutorial_20240306_all_v5.pdf](https://xrism-c2c.atlassian.net/wiki/spaces/XRISMPV/pages/140869909)
+* [XRISM Quick-Start Guide v2.1](https://xrism-c2c.atlassian.net/wiki/spaces/XRISMPV/pages/137199656/Data+reduction+and+analysis+tips)
+* [Things to watch out for in pipeline-processed data](https://xrism-c2c.atlassian.net/wiki/spaces/XRISMPV/pages/140869909)
+* [xrism_sdc_tutorial_20240306_all_v5.pdf](https://xrism-c2c.atlassian.net/wiki/spaces/XRISMPV/pages/140869909)
 
 ## How to use it
 ```

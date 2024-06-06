@@ -28,8 +28,8 @@ coordpnt=`coordpnt input="$RDETX0,$RDETY0" outfile=NONE telescop=XRISM instrume=
 ra=$(echo "$coordpnt" | awk '{print $4}')
 dec=$(echo "$coordpnt" | awk '{print $5}')
 
-rm $pfiles_dir/xaarfgen.par
-rm $pfiles_dir/xaxmaarfgen.par
+rm -rf $pfiles_dir/xaarfgen.par
+rm -rf $pfiles_dir/xaxmaarfgen.par
 
 if [ ${pix} -eq 0 ]; then pix_region='+box(4,3,1,1)' ; fi
 if [ ${pix} -eq 1 ]; then pix_region='+box(6,3,1,1)' ; fi
