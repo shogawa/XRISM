@@ -18,7 +18,7 @@ cd Fe55
 sh rsl_calspec.sh xa000162000
 ```
 
-## Hp spectrum in from Fe55 Filter pixel by pixel
+## Pixel by pixel Hp spectrum in from Fe55 Filter
 ```
 sh rsl_calspec_pix.sh xa000162000
 ```
