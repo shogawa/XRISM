@@ -14,7 +14,6 @@ dir_analysis=$1
 obsid=$2
 dataclass=$3
 dir_scripts=`pwd`
-dir_scripts_comon=$dir_scripts/..
 cd $dir_analysis
 
 sh $dir_scripts/xtd_copy.sh $obsid
@@ -25,5 +24,8 @@ sh $dir_scripts/xtd_specextract.sh $obsid $dataclass
 sh $dir_scripts/xtd_rmf.sh $obsid $dataclass
 sh $dir_scripts/xtd_xaexpmap.sh $obsid $dataclass
 sh $dir_scripts/xtd_xaarfgen.sh $obsid $dataclass
-sh $dir_scripts_comon/grppha.sh ${obsid}xtd_src.pi ${obsid}xtd_srgr1.pi min 1
-sh $dir_scripts_comon/bkg_rmf_arf.sh ${obsid}xtd_srgr1.pi ${obsid}xtd_bgd.pi ${obsid}xtd_p0${dataclass}_src.rmf ${obsid}xtd_p0${dataclass}_ptsrc.arf
+ftgrouppha infile=${obsid}xtd_src.pi outfile=${obsid}xtd_srgr1.pi grouptype=min groupscale=1
+fparkey ${obsid}xtd_bgd.pi ${obsid}xtd_src.pi BACKFILE
+fparkey ${obsid}xtd_p0${dataclass}_src.rmf ${obsid}xtd_src.pi RESPFILE
+fparkey ${obsid}xtd_p0${dataclass}_ptsrc.arf ${obsid}xtd_src.pi ANCRFILE
+ftgrouppha infile=${obsid}xtd_src.pi outfile=${obsid}xtd_srgr1.pi  backfile=${obsid}xtd_bgd.pi respfile=${obsid}xtd_p0${dataclass}_src.rmf grouptype=min groupscale=1
