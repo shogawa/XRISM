@@ -42,7 +42,7 @@ $TOOLS
 └── xtend
 </pre>
 
-## Setup
+## Setting
 If XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31 is changed:
 ```
 find . -type f -name '*.sh' -exec sed -i '' -e 's[XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31[XRISM_15Oct2023_Build8/x86_64-pc-linux-gnu-libc2.31[g' {} +;
