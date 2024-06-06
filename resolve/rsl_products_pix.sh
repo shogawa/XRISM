@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export TOOLS=/home/ogawa/work/tools
+
 export HEADAS=$TOOLS/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31
 . $HEADAS/headas-init.sh
 
