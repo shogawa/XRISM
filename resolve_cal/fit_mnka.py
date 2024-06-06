@@ -22,9 +22,9 @@ import seaborn as sns
 
 def get_argument():
     argparser = ArgumentParser(description='This is the error calculation program.')
-    argparser.add_argument('-ob', '--object', default='Circinus galaxy', help='object')
-    argparser.add_argument('-f', '--file', default='xa000162000rsl_fe55.pha', help='spectra')
-    argparser.add_argument('-re', '--resp', default='newdiag.rmf', help='responce')
+    argparser.add_argument('-t', '--target', default='Circinus galaxy', help='target name')
+    argparser.add_argument('-sf', '--specfile', default='xa000162000rsl_fe55.pha', help='spectra')
+    argparser.add_argument('-rf', '--respfile', default='newdiag.rmf', help='responce')
     return argparser.parse_args()
 
 def getNearestValue(list, num, sidx="no"):
@@ -47,9 +47,9 @@ def plot_parameters(plot):
     return plot_data
 
 args = get_argument()
-file = args.file
-respFIle = args.resp
-target = args.object
+file = args.specfile
+respFIle = args.respfile
+target = args.target
 
 xs.Fit.query = "yes"
 xs.Plot.xAxis = "kev"
