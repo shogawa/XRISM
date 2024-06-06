@@ -28,12 +28,12 @@ sh $dir_scripts/rsl_specextract_pix.sh $obsid $pix
 sh $dir_scripts/rsl_lcextract_pix.sh $obsid $pix $lcbin
 sh $dir_scripts/rsl_rmf_pix.sh $obsid $pix
 sh $dir_scripts/rsl_xaarfgen_pix.sh $obsid ${obsid}rsl_pix${pix0}_S.rmf $pix
-mv ${obsid}rsl_pix${pix0}.pha ${obsid}rsl_pix${pix0}_S.rmf ${obsid}rsl_p0px1000_ptsrc_pix${pix0}.arf region_RSL_det_pix${pix0}.reg ${obsid}rsl_pix${pix0}_b${lcbin}_lc.fits each_pixel
+mv ${obsid}rsl_pix${pix0}.pha ${obsid}rsl_pix${pix0}_S.rmf ${obsid}rsl_${pix0}_S.arf region_RSL_det_pix${pix0}.reg ${obsid}rsl_pix${pix0}_b${lcbin}_lc.fits each_pixel
 cd each_pixel
 ftgrouppha infile=${obsid}rsl_pix${pix0}.pha outfile=${obsid}rsl_pix${pix0}gr1.pha grouptype=min groupscale=1
 fparkey NONE ${obsid}rsl_pix${pix0}gr1.pha BACKFILE
 fparkey ${obsid}rsl_pix${pix0}_S.rmf ${obsid}rsl_pix${pix0}gr1.pha RESPFILE
-fparkey ${obsid}rsl_p0px1000_ptsrc_pix${pix0}.arf ${obsid}rsl_pix${pix0}gr1.pha ANCRFILE
+fparkey ${obsid}rsl_pix${pix0}_S.arf ${obsid}rsl_pix${pix0}gr1.pha ANCRFILE
 cd ../
 fi
 done

@@ -79,7 +79,7 @@ xaarfgen xrtevtfile=raytrace_${obsid}rsl_p0px1000_ptsrc.fits \
 source_ra=$ra source_dec=$dec telescop=XRISM instrume=RESOLVE \
 emapfile=${obsid}rsl_p0px1000.expo regmode=DET regionfile=${regionfile} \
 sourcetype=POINT rmffile=${rmf} erange="0.3 18.0 0 0" \
-outfile=${obsid}rsl_p0px1000_ptsrc_pix${pix0}.arf numphoton=300000 minphoton=100 teldeffile=CALDB \
+outfile=${obsid}rsl_pix${pix0}_S.arf numphoton=300000 minphoton=100 teldeffile=CALDB \
 qefile=CALDB contamifile=CALDB obffile=CALDB fwfile=CALDB gatevalvefile=CALDB \
 onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
 frontreffile=CALDB backreffile=CALDB pcolreffile=CALDB scatterfile=CALDB \
