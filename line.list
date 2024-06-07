@@ -1,0 +1,275 @@
+#line list from Furui+16, Yamaguchi+14, Enoto-san note
+
+FeKaLines = {
+"Fe I Ka": 6402,
+"Fe II Ka": 6402,
+"Fe III Ka": 6402,
+"Fe IV Ka": 6401,
+"Fe V Ka": 6400,
+"Fe VI Ka": 6399,
+"Fe VII Ka": 6399,
+"Fe VIII Ka": 6399,
+"Fe IX Ka": 6398,
+"Fe X Ka": 6401,
+"Fe XI Ka": 6405,
+"Fe XII Ka": 6410,
+"Fe XIII Ka": 6414,
+"Fe XIV Ka": 6419,
+"Fe XV Ka": 6425,
+"Fe XVI Ka": 6428,
+"Fe XVII Ka": 6427,
+"Fe XVIII Ka": 6455,
+"Fe XIX Ka": 6484,
+"Fe XX Ka": 6517,
+"Fe XXI Ka": 6544,
+"Fe XXII Ka": 6575,
+"Fe XXIII Ka": 6589,
+"Fe XXIV Ka": 6641
+}
+FeKbLines = {
+"Fe I Kb": 7059,
+"Fe II Kb": 7060,
+"Fe III Kb": 7060,
+"Fe IV Kb": 7059,
+"Fe V Kb": 7063,
+"Fe VI Kb": 7070,
+"Fe VII Kb": 7075,
+"Fe VIII Kb": 7081,
+"Fe IX Kb": 7090,
+"Fe X Kb": 7102,
+"Fe XI Kb": 7115,
+"Fe XII Kb": 7128,
+"Fe XIII Kb": 7141,
+"Fe XIV Kb": 7153,
+"Fe XV Kb": 7159,
+"Fe XVI Kb": 7176,
+"Fe XVII Kb": 7192,
+"Fe XVIII Kb": 7270,
+"Fe XIX Kb": 7351,
+"Fe XX Kb": 7434,
+"Fe XXI Kb": 7517,
+"Fe XXII Kb": 7610,
+"Fe XXIII Kb": 7705,
+"Fe XIV Kb": 7777
+}
+#FeILines = {
+#    "Fe Ka1": 6403.84,
+#    "Fe Ka2": 6390.84,
+#    "Fe Kb": 7057.98,
+#}
+FeHeaLines = {
+    "Fe Hea (w)": 6700.4146, #Hea Resonance (r)
+    "Fe Hea (z)": 6636.596, #Hea Forbidden (f)
+    "Fe Hea (x)": 6667.569, #Hea Intercombination (i, x)
+    "Fe Hea (y)": 6665.5493, #Hea Intercombination (i, y)
+}
+FeLyaLines = {
+    "Fe Lya1": 6973.175,
+    "Fe Lya2": 6951.9614
+}
+
+Ka1Lines = {
+"Li Ka1":54.3,
+"Be Ka1":108.5,
+"B Ka1":183.3,
+"C Ka1":277,
+"N Ka1":392.4,
+"O Ka1":524.9,
+"F Ka1":676.8,
+"Ne Ka1":848.6,
+"Na Ka1":1040.98,
+"Mg Ka1":1253.6,
+"Al Ka1":1486.7,
+"Si Ka1":1739.98,
+"P Ka1":2013.7,
+"S Ka1":2307.84,
+"Cl Ka1":2622.39,
+"Ar Ka1":2957.7,
+"K Ka1":3313.8,
+"Ca Ka1":3691.68,
+"Sc Ka1":4090.6,
+"Ti Ka1":4510.84,
+"V Ka1":4952.2,
+"Cr Ka1":5414.72,
+"Mn Ka1":5898.75,
+"Fe Ka1":6403.84,
+"Co Ka1":6930.32,
+"Ni Ka1":7478.15,
+"Cu Ka1":8047.78,
+"Zn Ka1":8638.86
+}
+
+Ka2Lines = {
+"Ne Ka2":848.6,
+"Na Ka2":1040.98,
+"Mg Ka2":1253.6,
+"Al Ka2":1486.27,
+"Si Ka2":1739.38,
+"P Ka2":2012.7,
+"S Ka2":2306.64,
+"Cl Ka2":2620.78,
+"Ar Ka2":2955.63,
+"K Ka2":3311.1,
+"Ca Ka2":3688.09,
+"Sc Ka2":4086.1,
+"Ti Ka2":4504.86,
+"V Ka2":4944.64,
+"Cr Ka2":5405.51,
+"Mn Ka2":5887.65,
+"Fe Ka2":6390.84,
+"Co Ka2":6915.3,
+"Ni Ka2":7460.89,
+"Cu Ka2":8027.83,
+"Zn Ka2":8615.78
+}
+
+KbLines = {
+"Na Kb":1071.1,
+"Mg Kb":1302.2,
+"Al Kb":1557.45,
+"Si Kb":1835.94,
+"P Kb":2139.1,
+"S Kb":2464.04,
+"Cl Kb":2815.6,
+"Ar Kb":3190.5,
+"K Kb":3589.6,
+"Ca Kb":4012.7,
+"Sc Kb":4460.5,
+"Ti Kb":4931.81,
+"V Kb":5427.29,
+"Cr Kb":5946.71,
+"Mn Kb":6490.45,
+"Fe Kb":7057.98,
+"Co Kb":7649.43,
+"Ni Kb":8264.66,
+"Cu Kb":8905.29,
+"Zn Kb":9572
+}
+
+HeazLines = {
+"C Hea z": 298.9,
+"N Hea z": 419.8,
+"O Hea z": 560.9,
+"Ne Hea z": 905,
+"Na Hea z": 1107.8,
+"Mg Hea z": 1331.1,
+"Al Hea z": 1574.9,
+"Si Hea z": 1839.4,
+"S Hea z": 2430.3,
+"Ar Hea z": 3104.1,
+"Ca Hea z": 3861.1,
+"Fe Hea z": 6636.6,
+"Ni Hea z": 7731.6
+}
+
+HeayLines = {
+"C Hea y": 304.4,
+"N Hea y": 426.3,
+"O Hea y": 568.5,
+"Ne Hea y": 914.8,
+"Na Hea y": 1118.7,
+"Mg Hea y": 1343.1,
+"Al Hea y": 1588.1,
+"Si Hea y": 1853.7,
+"S Hea y": 2447.1,
+"Ar Hea y": 3123.5,
+"Ca Hea y": 3883.3,
+"Fe Hea y": 6667.5,
+"Ni Hea y": 7765.7
+}
+
+HeaxLines = {
+"C Hea x": 304.4,
+"N Hea x": 426.3,
+"O Hea x": 568.6,
+"Ne Hea x": 915,
+"Na Hea x": 1119,
+"Mg Hea x": 1343.5,
+"Al Hea x": 1588.7,
+"Si Hea x": 1854.6,
+"S Hea x": 2448.7,
+"Ar Hea x": 3126.2,
+"Ca Hea x": 3887.7,
+"Fe Hea x": 6682.3,
+"Ni Hea x": 7786.4
+}
+
+HeawLines = {
+"C Hea w": 307.9,
+"N Hea w": 430.7,
+"O Hea w": 573.9,
+"Ne Hea w": 922,
+"Na Hea w": 1126.8,
+"Mg Hea w": 1352.2,
+"Al Hea w": 1598.2,
+"Si Hea w": 1864.9,
+"S Hea w": 2460.6,
+"Ar Hea w": 3139.5,
+"Ca Hea w": 3902.2,
+"Fe Hea w": 6700.4,
+"Ni Hea w": 7805.5
+}
+
+Lya1Lines = {
+"C Lya1": 367.5,
+"N Lya1": 500.3,
+"O Lya1": 653.6,
+"Ne Lya1": 1021.9,
+"Na Lya1": 1236.9,
+"Mg Lya1": 1472.6,
+"Al Lya1": 1728.9,
+"Si Lya1": 2006,
+"S Lya1": 2622.7,
+"Ar Lya1": 3322.9,
+"Ca Lya1": 4107.5,
+"Fe Lya1": 6973.1,
+"Ni Lya1": 8101.7
+}
+
+Lya2Lines = {
+"C Lya2": 367.4,
+"N Lya2": 500.2,
+"O Lya2": 653.4,
+"Ne Lya2": 1021.5,
+"Na Lya2": 1236.3,
+"Mg Lya2": 1471.6,
+"Al Lya2": 1727.6,
+"Si Lya2": 2004.3,
+"S Lya2": 2619.7,
+"Ar Lya2": 3318.1,
+"Ca Lya2": 4100.1,
+"Fe Lya2": 6951.9,
+"Ni Lya2": 8073.1
+}
+
+Lyb1Lines = {
+"C Lyb1": 435.5,
+"N Lyb1": 592.9,
+"O Lyb1": 774.6,
+"Ne Lyb1": 1210.9,
+"Na Lyb1": 1465.6,
+"Mg Lyb1": 1744.8,
+"Al Lyb1": 2048.4,
+"Si Lyb1": 2376.6,
+"S Lyb1": 3106.7,
+"Ar Lyb1": 3935.7,
+"Ca Lyb1": 4864.1,
+"Fe Lyb1": 8252.6,
+"Ni Lyb1": 9586
+}
+
+Lyb2Lines = {
+"C Lyb2": 435.5,
+"N Lyb2": 592.9,
+"O Lyb2": 774.5,
+"Ne Lyb2": 1210.8,
+"Na Lyb2": 1465.4,
+"Mg Lyb2": 1744.5,
+"Al Lyb2": 2048,
+"Si Lyb2": 2376.1,
+"S Lyb2": 3105.8,
+"Ar Lyb2": 3934.2,
+"Ca Lyb2": 4861.9,
+"Fe Lyb2": 8246.3,
+"Ni Lyb2": 9577.5
+}
