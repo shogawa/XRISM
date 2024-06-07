@@ -121,12 +121,6 @@ bayes off
 def modify_lorentz(line, input_file):
     lines = linelist[line]
     num_lorentz = len(lines)
-    #try:
-    #    with open(input_file, 'r') as file:
-    #        file_content = file.read()
-    #except FileNotFoundError:
-    #    print(f"File {input_file} not found.")
-    #    return
     file_content = xcm
     lorentz_list = " + ".join(["lorentz"] * num_lorentz)
 
@@ -153,7 +147,7 @@ if __name__ == "__main__":
         print("Usage: python script.py <number_of_lorentz> <input_file>")
         sys.exit(1)
 
-    num_lorentz = sys.argv[1]
+    line = sys.argv[1]
     input_file = sys.argv[2]
 
-    modify_lorentz(num_lorentz, input_file)
+    modify_lorentz(line, input_file)
