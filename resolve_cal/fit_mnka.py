@@ -58,6 +58,7 @@ xs.Plot.device = "/null"
 
 xs.Fit.statMethod = "cstat"
 
+xs.Xset.parallel.leven = 12
 xs.Xset.parallel.error = 12
 xs.Xset.parallel.steppar = 3
 xs.Xset.parallel.walkers = 12
