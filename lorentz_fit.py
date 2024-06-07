@@ -118,7 +118,7 @@ model  powerlaw + zashift(zashift(gsmooth(lorentz)*constant))
 bayes off
 """
 
-def modify_lorentz(line, input_file):
+def modify_lorentz(line):
     lines = linelist[line]
     num_lorentz = len(lines)
     file_content = xcm
@@ -138,16 +138,15 @@ def modify_lorentz(line, input_file):
         '{0:>15}      -0.01          0          0      1e+20      1e+24'.format(norm)
         )
     new_content = "\n".join(new_contents)
-    output_file = input_file.replace(".", "_" + line + ".")
+    output_file = "fit_lorentz_" + line + ".xcm"
     with open(output_file, mode='w') as f:
         f.write(new_content)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 2:
         print("Usage: python script.py <number_of_lorentz> <input_file>")
         sys.exit(1)
 
     line = sys.argv[1]
-    input_file = sys.argv[2]
 
-    modify_lorentz(line, input_file)
+    modify_lorentz(line)
