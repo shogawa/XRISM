@@ -35,8 +35,8 @@ xaarfgen xrtevtfile=raytrace_${obsid}xtd_p0${dataclass}_boxreg_ptsrc.fits \
 source_ra=$ra source_dec=$dec telescop=XRISM instrume=XTEND \
 emapfile=${obsid}xtd_a0${dataclass}.expo regmode=DET \
 regionfile=region_xtd_src.reg sourcetype=POINT \
-rmffile=${obsid}xtd_p0${dataclass}_src.rmf erange="0.3 18.0 0 0" \
-outfile=${obsid}xtd_p0${dataclass}_ptsrc.arf numphoton=300000 minphoton=100 \
+rmffile=${obsid}xtd_src.rmf erange="0.3 18.0 0 0" \
+outfile=${obsid}xtd_src.arf numphoton=300000 minphoton=100 \
 teldeffile=CALDB qefile=CALDB contamifile=CALDB obffile=CALDB fwfile=CALDB \
 onaxisffile=CALDB onaxiscfile=CALDB mirrorfile=CALDB obstructfile=CALDB \
 frontreffile=CALDB backreffile=CALDB pcolreffile=CALDB \
