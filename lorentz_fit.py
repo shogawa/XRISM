@@ -93,17 +93,41 @@ linelist = {
 ]
 }
 
+xcm = """#PyXspec: Output generated from Xset.save().  DO NOT MODIFY.
+
+statistic cstat
+data 1:1 xa000162000rsl_pixgr1.pha
+resp 1 xa000162000rsl_X_comb.rmf
+arf 1 xa000162000rsl_X.arf
+ignore 1:**-2.0 10.0-**
+
+method leven 10 0.01
+abund angr
+xsect vern
+cosmo 70 0 0.73
+xset delta 0.01
+systematic 0
+model  powerlaw + zashift(zashift(gsmooth(lorentz)*constant))
+            1.7          1        1.5        1.5        2.5        2.5
+           0.01       0.01          0          0      1e+20      1e+24
+        0.00145      -0.01     -0.999     -0.999         10         10
+              0       0.01    -100000    -100000     100000     100000
+          0.001       0.05          0          0         10         20
+              0      -0.01         -1         -1          1          1
+          0.001       0.01          0          0      1e+10      1e+10
+bayes off
+"""
 
 def modify_lorentz(line, input_file):
     lines = linelist[line]
     num_lorentz = len(lines)
-    try:
-        with open(input_file, 'r') as file:
-            file_content = file.read()
-    except FileNotFoundError:
-        print(f"File {input_file} not found.")
-        return
-
+    #try:
+    #    with open(input_file, 'r') as file:
+    #        file_content = file.read()
+    #except FileNotFoundError:
+    #    print(f"File {input_file} not found.")
+    #    return
+    file_content = xcm
     lorentz_list = " + ".join(["lorentz"] * num_lorentz)
 
     new_content = file_content.replace("lorentz)", f"{lorentz_list})")
