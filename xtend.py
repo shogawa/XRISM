@@ -1,9 +1,42 @@
+from argparse import ArgumentParser
 import datetime
 import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
+
+os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
+os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'
+
+def shell_source(script):
+    """
+    Sometime you want to emulate the action of "source" in bash,
+    settings some environment variables. Here is a way to do it.
+    """
+
+    pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
+    output = pipe.communicate()[0].decode('utf-8')
+    output = output[:-1] # fix for index out for range in 'env[ line[0] ] = line[1]'
+
+    env = {}
+    # split using null char
+    for line in output.split('\x00'):
+        line = line.split( '=', 1)
+        # print(line)
+        env[ line[0] ] = line[1]
+
+    os.environ.update(env)
+
+def get_argument():
+    argparser = ArgumentParser(description='This is the Xtend data reduction program.')
+    argparser.add_argument('-oi', '--obsid', default='xa000162000', help='OBSID')
+    argparser.add_argument('-dc', '--dataclass', default='31100010', help='Filter ID')
+    argparser.add_argument('-ed', '--eventdir', default='..', help='Eventfile directory path')
+    argparser.add_argument('-pd', '--productsdir', default='.', help='Products directory path')
+    return argparser.parse_args()
 
 class XtendTools:
 
@@ -12,7 +45,9 @@ class XtendTools:
         self.dataclass = dataclass
         self.eventdir = eventdir
         self.productsdir = productsdir
-        self.TOOLS = os.environ.get("TOOLS", "")
+
+        shell_source(os.environ['HEADAS'] + '/headas-init.sh')
+        shell_source(os.environ['CALDB'] + '/software/tools/caldbinit.sh')
 
         os.chdir(productsdir)
         now = datetime.datetime.now()
@@ -171,7 +206,7 @@ class XtendTools:
             'delta=20.0',
             'numphi=1',
             'stopsys=SKY',
-            'instmap={0}/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'.format(self.TOOLS),
+            'instmap={}'.format(instmap),
             'qefile=CALDB',
             'contamifile=CALDB',
             'vigfile=CALDB',
@@ -312,8 +347,17 @@ class XtendTools:
         self.xtd_imgextract(eventfile, obsid, dataclass, mode='DET', bmin=4000, bmax=20000)
         self.xtd_specextract(eventfile, specfile)
         self.xtd_backextract(eventfile, backfile)
-        self.xtd_mkrmf(eventfile, respfile)
+        self.xtd_mkrmf(specfile, respfile)
         self.xtd_xaexpmap(eventfile, obsid, dataclass)
         self.xtd_xaarfgen(eventfile, respfile, ancrfile, obsid, dataclass)
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+if __name__ == "__main__":
+    args = get_argument()
+    obsid = args.obsid
+    dataclass = args.dataclass
+    eventdir = args.eventdir
+    productsdir = args.productsdir
+    xtd = XtendTools(obsid, dataclass, eventdir, productsdir)
+    xtd.xtd_products()

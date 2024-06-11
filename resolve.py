@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import datetime
 import os
 from pathlib import Path
@@ -5,14 +6,49 @@ import re
 import shutil
 import subprocess
 
+os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
+os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+
+def shell_source(script):
+    """
+    Sometime you want to emulate the action of "source" in bash,
+    settings some environment variables. Here is a way to do it.
+    """
+
+    pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
+    output = pipe.communicate()[0].decode('utf-8')
+    output = output[:-1] # fix for index out for range in 'env[ line[0] ] = line[1]'
+
+    env = {}
+    # split using null char
+    for line in output.split('\x00'):
+        line = line.split( '=', 1)
+        # print(line)
+        env[ line[0] ] = line[1]
+
+    os.environ.update(env)
+
+def get_argument():
+    argparser = ArgumentParser(description='This is the Resolve data reduction program.')
+    argparser.add_argument('-oi', '--obsid', default='xa000162000', help='OBSID')
+    argparser.add_argument('-fi', '--filter', default='1000', help='Filter ID')
+    argparser.add_argument('-wr', '--whichrmf', default='S', help='RMF size')
+    argparser.add_argument('-ed', '--eventdir', default='..', help='Eventfile directory path')
+    argparser.add_argument('-pd', '--productsdir', default='.', help='Products directory path')
+    return argparser.parse_args()
+
 class ResolveTools:
 
-    def __init__(self, obsid, filter, whichrmf, eventdir='../', productsdir='./'):
+    def __init__(self, obsid, filter, whichrmf, eventdir='..', productsdir='.'):
         self.obsid = obsid
         self.filter = filter
         self.whichrmf = whichrmf
         self.eventdir = eventdir
         self.productsdir = productsdir
+
+        shell_source(os.environ['HEADAS'] + '/headas-init.sh')
+        shell_source(os.environ['CALDB'] + '/software/tools/caldbinit.sh')
 
         os.chdir(productsdir)
         now = datetime.datetime.now()
@@ -446,3 +482,13 @@ class ResolveTools:
         self.rsl_xaarfgen(eventfile, respfile, ancrfile, obsid, filter, regionfile)
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+if __name__ == "__main__":
+    args = get_argument()
+    obsid = args.obsid
+    filter = args.filter
+    whichrmf = args.whichrmf
+    eventdir = args.eventdir
+    productsdir = args.productsdir
+    rsl = ResolveTools(obsid, filter, whichrmf, eventdir, productsdir)
+    rsl.rsl_products()
