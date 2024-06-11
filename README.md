@@ -19,33 +19,14 @@ python xtend.py -oi xa000162000 -dc 31100010 -ed 00016200 -pd 00016200/analysis
 ```
 
 ## Premise
-<pre>
-$TOOLS
-├── heasoft
-│   ├── XRISM_15Oct2023_Build7
-│   └── xrism
-│       ├── xa_xtd_instmap_20190101v004.fits
-│       └── xselect.mdb.xrism
-└── caldb
-    ├── data
-    │   ├── gen
-    │   ├── and
-    │   ├── prelaunch_ah
-    │   └── xrism
-    └── software
-        └── tools
-            ├── alias_config.fits
-            ├── caldb.config
-            ├── caldbinit.csh
-            └── caldbinit.sh
-
+```
 000162000
 ├── analysis
 ├── auxill
 ├── log
 ├── resolve
 └── xtend
-</pre>
+```
 
 ## Setting
 The followings should be changed:
