@@ -6,6 +6,11 @@ These scripts are based on the following:
 
 ## How to use it
 ```
+python resolve.py -oi [OBSID] -fi [Filter ID] -wr [RMF size] -ed [/path/to/eventfile] -pd [/path/to/products]
+python xtend.py -oi [OBSID] -dc [dataclass] -ed [/path/to/eventfile] -pd [/path/to/products]
+```
+e.g.,
+```
 wget -nv -m -np -nH --cut-dirs=6 -R "index.html*" --execute robots=off --wait=1 https://data.darts.isas.jaxa.jp/pub/xrism/data/obs/rev3/0/000162000/
 ./decrypt_data.pl -r -d 000162000 -p PGPKEY
 mkdir -p 00016200/analysis
