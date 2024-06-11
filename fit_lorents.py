@@ -248,7 +248,10 @@ axes[1].set_yscale('linear')
 axes[0].set_xlim(emin,emax)
 #axes[0].set_ylim(1E-13,1e-8)
 #axes[0].set_ylim(1E-12,1e-8)
-axes[0].set_ylim(0,int(max(yVals)+1))
+ymax = max(yVals + yErrs)
+scale = 10**np.floor(np.log10(ymax))
+rounded_num = np.ceil(ymax / scale) * scale
+axes[0].set_ylim(0,rounded_num)
 axes[1].set_xlim(emin,emax)
 axes[1].set_ylim(-4.5,4.5)
 axes[1].set_xlabel(r'Energy (keV)', fontsize=12)
@@ -261,10 +264,11 @@ axes[1].plot([0.1,100],[0,0],"k")
 color=cmp(3)
 
 txt = target.replace('GC', 'GC ').replace('IC', 'IC ').replace('-', '$-$').replace('CenA', 'Centaurus A')
+txt += " " + line.replace("Ka", "K$\\alpha$").replace("Kb", "K$\\beta$")
 txt += "\n$\sigma$: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth)
 txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth*2.35)
 txt += "\n$z$: ${0:.6f}^{{+{1:.6f}}}_{{-{2:.6f}}}$".format(*redshift)
-txt += "\n$cz$: ${0:.6f}^{{+{1:.6f}}}_{{-{2:.6f}}}$ km/s".format(*redshift*c)
+txt += "\n$cz$: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ km/s".format(*redshift*c)
 axes[0].text(0.01, 0.50, txt, transform=axes[0].transAxes, size=12)
 
 for i in range(len(plot_data)):
@@ -287,6 +291,6 @@ for i in range(len(plot_data)):
 for ax in axes:
     ax.tick_params(which = "both", direction = 'in',bottom=True, top=True, left=True, right=True)
 
-axes[0].set_title('{}'.format(target + " " + line.replace("Ka", "K$\\alpha$").replace("Kb", "K$\\beta$")))
+#axes[0].set_title('{}'.format(target + " " + line.replace("Ka", "K$\\alpha$").replace("Kb", "K$\\beta$")))
 
 fig.savefig("{0}_{1}.pdf".format(target.replace(" ", "_"),line),bbox_inches='tight', dpi=300,transparent=True)
