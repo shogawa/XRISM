@@ -11,11 +11,6 @@ os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
 os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
 
 def shell_source(script):
-    """
-    Sometime you want to emulate the action of "source" in bash,
-    settings some environment variables. Here is a way to do it.
-    """
-
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
     output = output[:-1] # fix for index out for range in 'env[ line[0] ] = line[1]'

@@ -12,11 +12,6 @@ os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xri
 instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'
 
 def shell_source(script):
-    """
-    Sometime you want to emulate the action of "source" in bash,
-    settings some environment variables. Here is a way to do it.
-    """
-
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
     output = output[:-1] # fix for index out for range in 'env[ line[0] ] = line[1]'
@@ -342,9 +337,9 @@ class XtendTools:
         grouptype = "min"
         groupscale = "1"
         self.xtd_copy(eventdir, obsid, dataclass)
+        self.xtd_imgextract(eventfile, obsid, dataclass, mode='DET', bmin=83, bmax=1667)
         self.xtd_srclcextract(eventfile, obsid)
         self.xtd_bgdlcextract(eventfile, obsid)
-        self.xtd_imgextract(eventfile, obsid, dataclass, mode='DET', bmin=4000, bmax=20000)
         self.xtd_specextract(eventfile, specfile)
         self.xtd_backextract(eventfile, backfile)
         self.xtd_mkrmf(specfile, respfile)

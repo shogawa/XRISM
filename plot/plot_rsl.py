@@ -112,9 +112,9 @@ def plot_rsl_image(imgFile):
     wcs.wcs.cdelt = [hdu.header["CDELT1P"], hdu.header["CDELT2P"]]
     fig = plt.figure()
     ax = fig.add_subplot(projection=wcs)
-    data = hdu.data+1e-10
-    norm = ImageNormalize(np.log10(data),interval=ZScaleInterval(), vmax=5, vmin=2)
-    im = ax.imshow(np.log10(data), norm=norm, cmap="PuRd")
+    data = hdu.data
+    norm = ImageNormalize(np.log10(data+1e-10),interval=ZScaleInterval(), vmax=5, vmin=2)
+    im = ax.imshow(np.log10(data+1e-10), norm=norm, cmap="PuRd")
     #norm = ImageNormalize(data,interval=ZScaleInterval())
     #im = ax.imshow(data, norm=norm, cmap="PuRd")
     cbar = fig.colorbar(im, ax=ax)
@@ -135,6 +135,7 @@ def plot_rsl_image(imgFile):
         for j in yi:
             #ax.text(i,j,pmap[i][j],horizontalalignment='center')
             ax.text(i-0.25,j+0.25,pmap[i][j],horizontalalignment="center")
+            ax.text(i,j,data[i][j],horizontalalignment="center")
     x1  = -0.5
     y1  = -0.5
     x2  = 5.5

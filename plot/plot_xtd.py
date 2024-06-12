@@ -3,6 +3,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import datetime
 from math import log10, floor
 import os
+import re
 
 import astropy.io.fits as pyfits
 from astropy.time import Time
@@ -105,10 +106,13 @@ def plot_xtd_image(imgFile1, imgFile2, rslFOV=False, reg=False):
                 ax.plot([x1,x2],[y1+i*pix_size,y1+i*pix_size],color='cyan',lw=1,alpha=0.5)
 
     if reg:
-        rx = 734.30754
-        ry = 732.6416
-        rw = 65
-        rh = 170
+        with open("region_xtd_src.reg", "r") as f:
+            s = f.read()
+            result = re.search(r'\(([\d\.]*),([\d\.]*),([\d\.]*),([\d\.]*0),[\d\.]*\)', s)
+            rx = float(result.group(1))
+            ry = float(result.group(2))
+            rw = float(result.group(3))
+            rh = float(result.group(4))
         x1  = rx - rw/2
         y1  = ry - rh/2
         x2  = rx + rw/2
@@ -123,10 +127,13 @@ def plot_xtd_image(imgFile1, imgFile2, rslFOV=False, reg=False):
             ln, = ax.plot(rect[0],rect[1],color='b',lw=1,alpha=0.5)
             lns.append(ln)
 
-        rx = 733.15014
-        ry = 466.43789
-        rw = 65
-        rh = 170
+        with open("region_xtd_bgd.reg", "r") as f:
+            s = f.read()
+            result = re.search(r'\(([\d\.]*),([\d\.]*),([\d\.]*),([\d\.]*0),[\d\.]*\)', s)
+            rx = float(result.group(1))
+            ry = float(result.group(2))
+            rw = float(result.group(3))
+            rh = float(result.group(4))
         x1  = rx - rw/2
         y1  = ry - rh/2
         x2  = rx + rw/2
@@ -159,5 +166,5 @@ if __name__ == "__main__":
     imgFile1 = "xa000162000xtd_p031100010_detimgsfpfree.fits"
     imgFile1 = "xa000162000xtd_p031100010_detimg.fits"
     imgFile2 = "xa000162000xtd_p032000010_detimg.fits"
-    fig = plot_xtd_image(imgFile1, imgFile2, rslFOV=False, reg=False)
+    fig = plot_xtd_image(imgFile1, imgFile2, rslFOV=False, reg=True)
     fig.savefig("xtd_img.pdf",bbox_inches='tight', dpi=300,transparent=True)
