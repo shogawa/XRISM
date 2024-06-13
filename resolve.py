@@ -117,16 +117,18 @@ class ResolveTools:
         return outfile
 
     def rsl_gain_gti(self, eventfile, eventdir, obsid, filter):
-        os.symlink('{0}/resolve/event_uf/{1}rsl_p0px5000_uf.evt.gz'.format(eventdir, obsid), '{0}rsl_p0px5000_uf.evt.gz'.format(obsid))
+        eventfile_fe55 = '{0}rsl_p0px5000_uf.evt.gz'.format(obsid)
+        if os.path.islink(eventfile_fe55): os.unlink(eventfile_fe55)
+        os.symlink('{0}/resolve/event_uf/{1}'.format(eventdir, eventfile_fe55), eventfile_fe55)
         outfile = '{0}rsl_p0px{1}_cl_gain.evt'.format(obsid, filter)
         mgtime_inputs = [
-            'ingtis="{0}rsl_p0px5000_uf.evt.gz[2],{0}rsl_p0px5000_uf.evt.gz[6]"'.format(obsid),
+            'ingtis={0}[2],{0}[6]'.format(eventfile_fe55),
             'outgti=Fe55track.gti',
             'merge=AND'
         ]
 
         rslgain_inputs = [
-            'infile={0}rsl_p0px5000_uf.evt.gz'.format(obsid, filter),
+            'infile='+eventfile_fe55,
             'outfile=Fe55.ghf',
             'linetocorrect=MnKa',
             'calmethod=Fe55',
@@ -164,156 +166,154 @@ class ResolveTools:
         return outfile
 
     def rsl_imgextract(self, eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000):
-        commands = ['']
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image {0}'.format(mode))
-        commands.append('filter pha_cutoff {0} {1}'.format(bmin, bmax))
-        commands.append('extract image')
-        commands.append('save image {0}rsl_p0px{1}_detimg.fits clobber=yes'.format(obsid, filter))
-        commands.append('exit')
-        commands.append('no')
-
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image {0}'.format(mode),
+            'filter region exclude_calsources.reg',
+            'filter pha_cutoff {0} {1}'.format(bmin, bmax),
+            'extract image',
+            'save image {0}rsl_p0px{1}_detimg.fits clobber=yes'.format(obsid, filter),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def rsl_specextract(self, eventfile, specfile):
-        commands = []
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('filter pha_cutoff 0 59999')
-        commands.append('filter column "PIXEL=0:11,13:26,28:35"')
-        commands.append('filter GRADE "0:0"')
-        commands.append('extract spectrum')
-        commands.append('save spec {0} clobber=yes'.format(specfile))
-        commands.append('exit')
-        commands.append('no')
-
+    def rsl_specextract(self, eventfile, specfile, pixel='0:11,13:26,28:35', grade='0:0'):
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'filter pha_cutoff 0 59999',
+            'filter column "PIXEL={0}"'.format(pixel),
+            'filter GRADE "{0}"'.format(grade),
+            'extract spectrum',
+            'save spec {0} clobber=yes'.format(specfile),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
     def rsl_lcextract(self, eventfile, obsid, bmin=4000, bmax=20000, binsize='128'):
-        commands = []
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image det')
-        commands.append('filter pha_cutoff {0} {1}'.format(bmin, bmax))
-        commands.append('set binsize {0}'.format(binsize))
-        commands.append('extr curve exposure=0.8')
-        commands.append('save curve {0}rsl_allpix_b{1}_lc.fits clobber=yes'.format(obsid, binsize))
-        commands.append('exit')
-        commands.append('no')
-
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image det',
+            'filter pha_cutoff {0} {1}'.format(bmin, bmax),
+            'set binsize {0}'.format(binsize),
+            'extr curve exposure=0.8',
+            'save curve {0}rsl_allpix_b{1}_lc.fits clobber=yes'.format(obsid, binsize),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def rsl_mkrmf(self, eventfile, respfile, whichrmf):
-        infile = "{0}".format(eventfile)
+    def rsl_mkrmf(self, infile, respfile, whichrmf, regmode='DET', resolist='0', regionfile='NONE', pixlist='0-11,13-26,28-35', eminin='0.0', dein='0.5', nchanin='60000', useingrd='no', eminout='0.0', deout='0.5', nchanout='60000', clobber='yes'):
         outroot = "{0}".format(respfile.strip('_comb.rmf'))
         inputs = [
-            'infile='+infile,
-            'outfileroot='+outroot,
-            'regmode=DET',
-            'whichrmf='+whichrmf,
-            'resolist=0',
-            'regionfile=NONE',
-            'pixlist=0-11,13-26,28-35',
-            'eminin=0.0',
-            'dein=0.5',
-            'nchanin=60000',
-            'useingrd=no',
-            'eminout=0.0',
-            'deout=0.5',
-            'nchanout=60000',
-            'clobber=yes'
+            'infile='+str(infile),
+            'outfileroot='+str(outroot),
+            'regmode='+str(regmode),
+            'whichrmf='+str(whichrmf.strip('_comb')),
+            'resolist='+str(resolist),
+            'regionfile='+str(regionfile),
+            'pixlist='+str(pixlist),
+            'eminin='+str(eminin),
+            'dein='+str(dein),
+            'nchanin='+str(nchanin),
+            'useingrd='+str(useingrd),
+            'eminout='+str(eminout),
+            'deout='+str(deout),
+            'nchanout='+str(nchanout),
+            'clobber='+str(clobber)
         ]
-        if 'comb' in whichrmf: inputs + ['splitrmf=yes', 'elcbinfac=16', 'splitcomb=yes']
+        if 'comb' in whichrmf: inputs += ['splitrmf=yes', 'elcbinfac=16', 'splitcomb=yes']
         process = subprocess.Popen(['rslmkrmf', *inputs], text=True)
         process.wait()
 
-    def rsl_xaexpmap(self, eventfile, obsid, filter):
+    def rsl_xaexpmap(self, ehkfile, gtifile, pixgtifile, outfile, logfile, instrume='RESOLVE', badimgfile='NONE', outmaptype='EXPOSURE', delta='20.0', numphi='1', stopsys='SKY', instmap='CALDB', qefile='CALDB', contamifile='CALDB', vigfile='CALDB', obffile='CALDB', fwfile='CALDB', gvfile='CALDB', maskcalsrc='yes', fwtype='FILE', specmode='MONO', specfile='spec.fits', specform='FITS', evperchan='DEFAULT', abund='1', cols='0', covfac='1', clobber='yes', chatter='1'):
         inputs = [
-            'ehkfile={0}.ehk.gz'.format(obsid),
-            'gtifile={0}'.format(eventfile),
-            'instrume=RESOLVE',
-            'badimgfile=NONE',
-            'pixgtifile={0}rsl_px{1}_exp.gti.gz'.format(obsid, filter),
-            'outfile={0}rsl_p0px{1}.expo'.format(obsid, filter),
-            'outmaptype=EXPOSURE',
-            'delta=20.0',
-            'numphi=1',
-            'stopsys=SKY',
-            'instmap=CALDB',
-            'qefile=CALDB',
-            'contamifile=CALDB',
-            'vigfile=CALDB',
-            'obffile=CALDB',
-            'fwfile=CALDB',
-            'gvfile=CALDB',
-            'maskcalsrc=yes',
-            'fwtype=FILE',
-            'specmode=MONO',
-            'specfile=spec.fits',
-            'specform=FITS',
-            'evperchan=DEFAULT',
-            'abund=1',
-            'cols=0',
-            'covfac=1',
-            'clobber=yes',
-            'chatter=1',
-            'logfile=make_expo_{0}rsl_p0px{1}.log'.format(obsid, filter)
+            'ehkfile='+str(ehkfile),
+            'gtifile='+str(gtifile),
+            'instrume='+str(instrume),
+            'badimgfile='+str(badimgfile),
+            'pixgtifile='+str(pixgtifile),
+            'outfile='+str(outfile),
+            'outmaptype='+str(outmaptype),
+            'delta='+str(delta),
+            'numphi='+str(numphi),
+            'stopsys='+str(stopsys),
+            'instmap='+str(instmap),
+            'qefile='+str(qefile),
+            'contamifile='+str(contamifile),
+            'vigfile='+str(vigfile),
+            'obffile='+str(obffile),
+            'fwfile='+str(fwfile),
+            'gvfile='+str(gvfile),
+            'maskcalsrc='+str(maskcalsrc),
+            'fwtype='+str(fwtype),
+            'specmode='+str(specmode),
+            'specfile='+str(specfile),
+            'specform='+str(specform),
+            'evperchan='+str(evperchan),
+            'abund='+str(abund),
+            'cols='+str(cols),
+            'covfac='+str(covfac),
+            'clobber='+str(clobber),
+            'chatter='+str(chatter),
+            'logfile='+str(logfile)
         ]
         process = subprocess.Popen(['xaexpmap', *inputs], text=True)
         process.wait()
 
-    def rsl_xaarfgen(self, eventfile, respfile, ancrfile, obsid, filter, regionfile):
-        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
-        ra, dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+    def rsl_xaarfgen(self, xrtevtfile, emapfile, respfile, ancrfile, regionfile, source_ra, source_dec, telescop='XRISM', instrume='RESOLVE', regmode='DET', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='300000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', gatevalvefile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
         inputs = [
-            'xrtevtfile=raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter),
-            'source_ra={0}'.format(ra),
-            'source_dec={0}'.format(dec),
-            'telescop=XRISM',
-            'instrume=RESOLVE',
-            'emapfile={0}rsl_p0px{1}.expo'.format(obsid, filter),
-            'regmode=DET',
-            'regionfile={0}'.format(regionfile),
-            'sourcetype=POINT',
-            'rmffile={0}'.format(respfile),
-            'erange=0.3 18.0 0 0',
-            'outfile={0}'.format(ancrfile),
-            'numphoton=300000',
-            'minphoton=100',
-            'teldeffile=CALDB',
-            'qefile=CALDB',
-            'contamifile=CALDB',
-            'obffile=CALDB',
-            'fwfile=CALDB',
-            'gatevalvefile=CALDB',
-            'onaxisffile=CALDB',
-            'onaxiscfile=CALDB',
-            'mirrorfile=CALDB',
-            'obstructfile=CALDB',
-            'frontreffile=CALDB',
-            'backreffile=CALDB',
-            'pcolreffile=CALDB',
-            'scatterfile=CALDB',
-            'mode=h',
-            'clobber=yes',
-            'seed=7',
-            'imgfile=NONE'
+            'xrtevtfile='+str(xrtevtfile),
+            'source_ra='+str(source_ra),
+            'source_dec='+str(source_dec),
+            'telescop='+str(telescop),
+            'instrume='+str(instrume),
+            'emapfile='+str(emapfile),
+            'regmode='+str(regmode),
+            'regionfile='+str(regionfile),
+            'sourcetype='+str(sourcetype),
+            'rmffile='+str(respfile),
+            'erange='+str(erange),
+            'outfile='+str(ancrfile),
+            'numphoton='+str(numphoton),
+            'minphoton='+str(minphoton),
+            'teldeffile='+str(teldeffile),
+            'qefile='+str(qefile),
+            'contamifile='+str(contamifile),
+            'obffile='+str(obffile),
+            'fwfile='+str(fwfile),
+            'gatevalvefile='+str(gatevalvefile),
+            'onaxisffile='+str(onaxisffile),
+            'onaxiscfile='+str(onaxiscfile),
+            'mirrorfile='+str(mirrorfile),
+            'obstructfile='+str(obstructfile),
+            'frontreffile='+str(frontreffile),
+            'backreffile='+str(backreffile),
+            'pcolreffile='+str(pcolreffile),
+            'scatterfile='+str(scatterfile),
+            'mode='+str(mode),
+            'clobber='+str(clobber),
+            'seed='+str(seed),
+            'imgfile='+str(imgfile)
         ]
         process = subprocess.Popen(['xaarfgen', *inputs], text=True)
         process.wait()
@@ -395,8 +395,18 @@ class ResolveTools:
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
         self.rsl_mkrmf(eventfile, respfile, whichrmf)
-        self.rsl_xaexpmap(eventfile, obsid, filter)
-        self.rsl_xaarfgen(eventfile, respfile, ancrfile, obsid, filter, regionfile)
+
+        ehkfile = '{0}.ehk.gz'.format(obsid)
+        pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
+        emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
+        logfile = 'make_expo_{0}rsl_p0px{1}.log'.format(obsid, filter)
+        self.rsl_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+        xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
@@ -420,8 +430,18 @@ class ResolveTools:
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
         self.rsl_mkrmf(eventfile, respfile, obsid, whichrmf)
-        self.rsl_xaexpmap(eventfile, obsid, filter)
-        self.rsl_xaarfgen(eventfile, respfile, ancrfile, obsid, filter, regionfile)
+
+        ehkfile = '{0}.ehk.gz'.format(obsid)
+        pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
+        emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
+        logfile = 'make_expo_{0}rsl_p0px{1}.log'.format(obsid, filter)
+        self.rsl_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+        xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
@@ -446,9 +466,19 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, obsid, whichrmf)
-        self.rsl_xaexpmap(eventfile, obsid, filter)
-        self.rsl_xaarfgen(eventfile, respfile, ancrfile, obsid, filter, regionfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf)
+
+        ehkfile = '{0}.ehk.gz'.format(obsid)
+        pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
+        emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
+        logfile = 'make_expo_{0}rsl_p0px{1}.log'.format(obsid, filter)
+        self.rsl_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+        xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
@@ -472,9 +502,19 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, obsid, whichrmf)
-        self.rsl_xaexpmap(eventfile, obsid, filter)
-        self.rsl_xaarfgen(eventfile, respfile, ancrfile, obsid, filter, regionfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf)
+
+        ehkfile = '{0}.ehk.gz'.format(obsid)
+        pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
+        emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
+        logfile = 'make_expo_{0}rsl_p0px{1}.log'.format(obsid, filter)
+        self.rsl_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+        xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 

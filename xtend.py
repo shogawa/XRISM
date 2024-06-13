@@ -78,191 +78,184 @@ class XtendTools:
             f.write("-circle(919.0,271.0,91.0)\n")
 
     def xtd_imgextract(self, eventfile, obsid, dataclass, mode='DET', bmin=83, bmax=1667):
-        commands = ['']
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image {0}'.format(mode))
-        commands.append('filter region exclude_calsources.reg')
-        commands.append('filter pha_cutoff {0} {1}'.format(bmin, bmax))
-        commands.append('extract image')
-        commands.append('save image {0}xtd_p0{1}_detimg.fits clobber=yes'.format(obsid, dataclass))
-        commands.append('exit')
-        commands.append('no')
-
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image {0}'.format(mode),
+            'filter region exclude_calsources.reg',
+            'filter pha_cutoff {0} {1}'.format(bmin, bmax),
+            'extract image',
+            'save image {0}xtd_p0{1}_detimg.fits clobber=yes'.format(obsid, dataclass),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
     def xtd_specextract(self, eventfile, specfile):
-        commands = []
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image det')
-        commands.append('filter region region_xtd_src.reg')
-        commands.append('extract spectrum')
-        commands.append('save spec {0} clobber=yes'.format(specfile))
-        commands.append('exit')
-        commands.append('no')
-
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image det',
+            'filter region region_xtd_src.reg',
+            'extract spectrum',
+            'save spec {0} clobber=yes'.format(specfile),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
     def xtd_backextract(self, eventfile, backfile):
-        commands = []
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image det')
-        commands.append('filter region region_xtd_bgd.reg')
-        commands.append('extract spectrum')
-        commands.append('save spec {0} clobber=yes'.format(backfile))
-        commands.append('exit')
-        commands.append('no')
-
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image det',
+            'filter region region_xtd_bgd.reg',
+            'extract spectrum',
+            'save spec {0} clobber=yes'.format(backfile),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def xtd_srclcextract(self, eventfile, obsid, bmin=83, bmax=1667, binsize='128'):
-        commands = []
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image det')
-        commands.append('filter region region_xtd_src.reg')
-        commands.append('filter pha_cutoff {0} {1}'.format(bmin, bmax))
-        commands.append('set binsize {0}'.format(binsize))
-        commands.append('extr curve exposure=0.6')
-        commands.append('save curve {0}xtd_0p5to10keV_b{1}_src_lc.fits clobber=yes'.format(obsid, binsize))
-        commands.append('exit')
-        commands.append('no')
-
+    def xtd_srclcextract(self, eventfile, obsid, bmin='83', bmax='1667', binsize='128'):
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image det',
+            'filter region region_xtd_src.reg',
+            'filter pha_cutoff {0} {1}'.format(bmin, bmax),
+            'set binsize {0}'.format(binsize),
+            'extr curve exposure=0.6',
+            'save curve {0}xtd_0p5to10keV_b{1}_src_lc.fits clobber=yes'.format(obsid, binsize),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def xtd_bgdlcextract(self, eventfile, obsid, bmin=83, bmax=1667, binsize='128'):
-        commands = []
-        commands.append('xsel')
-        commands.append('no')
-        commands.append('read event {0}'.format(eventfile))
-        commands.append('./')
-        commands.append('yes')
-        commands.append('set image det')
-        commands.append('filter region region_xtd_bgd.reg')
-        commands.append('filter pha_cutoff {0} {1}'.format(bmin, bmax))
-        commands.append('set binsize {0}'.format(binsize))
-        commands.append('extr curve exposure=0.6')
-        commands.append('save curve {0}xtd_0p5to10keV_b{1}_bgd_lc.fits clobber=yes'.format(obsid, binsize))
-        commands.append('exit')
-        commands.append('no')
-
+    def xtd_bgdlcextract(self, eventfile, obsid, bmin='83', bmax='1667', binsize='128'):
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile),
+            './',
+            'yes',
+            'set image det',
+            'filter region region_xtd_bgd.reg',
+            'filter pha_cutoff {0} {1}'.format(bmin, bmax),
+            'set binsize {0}'.format(binsize),
+            'extr curve exposure=0.6',
+            'save curve {0}xtd_0p5to10keV_b{1}_bgd_lc.fits clobber=yes'.format(obsid, binsize),
+            'exit',
+            'no'
+        ]
         process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def xtd_mkrmf(self, specfile, respfile):
-        infile = "{0}".format(specfile)
+    def xtd_mkrmf(self, infile, outfile, rmfparam='CALDB', eminin='200', dein='2,24', nchanin='5900,500', eminout='0.0', deout='6', nchanout='4096' ,clobber='yes'):
         inputs = [
-            'infile='+infile,
-            'outfile='+respfile,
-            'rmfparam=CALDB',
-            'eminin=200',
-            'dein=2,24',
-            'nchanin=5900,500',
-            'eminout=0.0',
-            'deout=6',
-            'nchanout=4096',
-            'clobber=yes',
+            'infile='+str(infile),
+            'outfile='+str(outfile),
+            'rmfparam='+str(rmfparam),
+            'eminin='+str(eminin),
+            'dein='+str(dein),
+            'nchanin='+str(nchanin),
+            'eminout='+str(eminout),
+            'deout='+str(deout),
+            'nchanout='+str(nchanout),
+            'clobber='+str(clobber)
         ]
         process = subprocess.Popen(['xtdrmf', *inputs], text=True)
         process.wait()
 
-    def xtd_xaexpmap(self, eventfile, obsid, dataclass):
+    def xtd_xaexpmap(self, ehkfile, gtifile, badimgfile, pixgtifile, outfile, logfile, instrume='XTEND', outmaptype='EXPOSURE', delta='20.0', numphi='1', stopsys='SKY', instmap='CALDB', qefile='CALDB', contamifile='CALDB', vigfile='CALDB', obffile='CALDB', fwfile='CALDB', gvfile='CALDB', maskcalsrc='yes', fwtype='FILE', specmode='MONO', specfile='spec.fits', specform='FITS', evperchan='DEFAULT', abund='1', cols='0', covfac='1', clobber='yes', chatter='1'):
         inputs = [
-            'ehkfile={0}.ehk.gz'.format(obsid),
-            'gtifile={0}'.format(eventfile),
-            'instrume=XTEND',
-            'badimgfile={0}xtd_p0{1}.bimg.gz'.format(obsid, dataclass),
-            'pixgtifile={0}xtd_a0{1}.fpix.gz'.format(obsid, dataclass),
-            'outfile={0}xtd_a0{1}.expo'.format(obsid, dataclass),
-            'outmaptype=EXPOSURE',
-            'delta=20.0',
-            'numphi=1',
-            'stopsys=SKY',
-            'instmap={}'.format(instmap),
-            'qefile=CALDB',
-            'contamifile=CALDB',
-            'vigfile=CALDB',
-            'obffile=CALDB',
-            'fwfile=CALDB',
-            'gvfile=CALDB',
-            'maskcalsrc=yes',
-            'fwtype=FILE',
-            'specmode=MONO',
-            'specfile=spec.fits',
-            'specform=FITS',
-            'evperchan=DEFAULT',
-            'abund=1',
-            'cols=0',
-            'covfac=1',
-            'clobber=yes',
-            'chatter=1',
-            'logfile=make_expo_{0}xtd_p0{1}.log'.format(obsid, dataclass)
+            'ehkfile='+str(ehkfile),
+            'gtifile='+str(gtifile),
+            'instrume='+str(instrume),
+            'badimgfile='+str(badimgfile),
+            'pixgtifile='+str(pixgtifile),
+            'outfile='+str(outfile),
+            'outmaptype='+str(outmaptype),
+            'delta='+str(delta),
+            'numphi='+str(numphi),
+            'stopsys='+str(stopsys),
+            'instmap='+str(instmap),
+            'qefile='+str(qefile),
+            'contamifile='+str(contamifile),
+            'vigfile='+str(vigfile),
+            'obffile='+str(obffile),
+            'fwfile='+str(fwfile),
+            'gvfile='+str(gvfile),
+            'maskcalsrc='+str(maskcalsrc),
+            'fwtype='+str(fwtype),
+            'specmode='+str(specmode),
+            'specfile='+str(specfile),
+            'specform='+str(specform),
+            'evperchan='+str(evperchan),
+            'abund='+str(abund),
+            'cols='+str(cols),
+            'covfac='+str(covfac),
+            'clobber='+str(clobber),
+            'chatter='+str(chatter),
+            'logfile='+str(logfile)
         ]
         process = subprocess.Popen(['xaexpmap', *inputs], text=True)
         process.wait()
 
-    def xtd_xaarfgen(self, eventfile, respfile, ancrfile, obsid, dataclass):
-        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
-        with open("region_xtd_src.reg", "r") as f:
-            s = f.read()
-            XDETX0=re.search(r'\(([\d\.]*),([\d\.]*),[\d\.]*,[\d\.]*,[\d\.]*\)', s).group(1)
-            XDETY0=re.search(r'\(([\d\.]*),([\d\.]*),[\d\.]*,[\d\.]*,[\d\.]*\)', s).group(2)
-        ra, dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XDETX0, Y0=XDETY0)
+    def xtd_xaarfgen(self, xrtevtfile, respfile, ancrfile, source_ra, source_dec, emapfile, telescop='XRISM', instrume='XTEND', regmode='DET', regionfile='region_xtd_src.reg', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='300000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
         inputs = [
-            'xrtevtfile=raytrace_{0}xtd_p0{1}_boxreg_ptsrc.fits'.format(obsid, dataclass),
-            'source_ra={0}'.format(ra),
-            'source_dec={0}'.format(dec),
-            'telescop=XRISM',
-            'instrume=XTEND',
-            'emapfile={0}xtd_a0{1}.expo'.format(obsid, dataclass),
-            'regmode=DET',
-            'regionfile=region_xtd_src.reg',
-            'sourcetype=POINT',
-            'rmffile={0}'.format(respfile),
-            'erange=0.3 18.0 0 0',
-            'outfile={0}'.format(ancrfile),
-            'numphoton=300000',
-            'minphoton=100',
-            'teldeffile=CALDB',
-            'qefile=CALDB',
-            'contamifile=CALDB',
-            'obffile=CALDB',
-            'fwfile=CALDB',
-            'onaxisffile=CALDB',
-            'onaxiscfile=CALDB',
-            'mirrorfile=CALDB',
-            'obstructfile=CALDB',
-            'frontreffile=CALDB',
-            'backreffile=CALDB',
-            'pcolreffile=CALDB',
-            'scatterfile=CALDB',
-            'mode=h',
-            'clobber=yes',
-            'seed=7',
-            'imgfile=NONE'
+            'xrtevtfile='+str(xrtevtfile),
+            'source_ra='+str(source_ra),
+            'source_dec='+str(source_dec),
+            'telescop='+str(telescop),
+            'instrume='+str(instrume),
+            'emapfile'+str(emapfile),
+            'regmode='+str(regmode),
+            'regionfile='+str(regionfile),
+            'sourcetype='+str(sourcetype),
+            'rmffile='+str(respfile),
+            'erange='+str(erange),
+            'outfile='+str(ancrfile),
+            'numphoton='+str(numphoton),
+            'minphoton='+str(minphoton),
+            'teldeffile='+str(teldeffile),
+            'qefile='+str(qefile),
+            'contamifile='+str(contamifile),
+            'obffile='+str(obffile),
+            'fwfile='+str(fwfile),
+            'onaxisffile='+str(onaxisffile),
+            'onaxiscfile='+str(onaxiscfile),
+            'mirrorfile='+str(mirrorfile),
+            'obstructfile='+str(obstructfile),
+            'frontreffile='+str(frontreffile),
+            'backreffile='+str(backreffile),
+            'pcolreffile='+str(pcolreffile),
+            'scatterfile='+str(scatterfile),
+            'mode='+str(mode),
+            'clobber='+str(clobber),
+            'seed='+str(seed),
+            'imgfile='+str(imgfile)
         ]
         process = subprocess.Popen(['xaarfgen', *inputs], text=True)
         process.wait()
@@ -337,14 +330,29 @@ class XtendTools:
         grouptype = "min"
         groupscale = "1"
         self.xtd_copy(eventdir, obsid, dataclass)
-        self.xtd_imgextract(eventfile, obsid, dataclass, mode='DET', bmin=83, bmax=1667)
+        self.xtd_imgextract(eventfile, obsid, dataclass)
         self.xtd_srclcextract(eventfile, obsid)
         self.xtd_bgdlcextract(eventfile, obsid)
         self.xtd_specextract(eventfile, specfile)
         self.xtd_backextract(eventfile, backfile)
         self.xtd_mkrmf(specfile, respfile)
-        self.xtd_xaexpmap(eventfile, obsid, dataclass)
-        self.xtd_xaarfgen(eventfile, respfile, ancrfile, obsid, dataclass)
+
+        ehkfile = '{0}.ehk.gz'.format(obsid)
+        badimgfile = '{0}xtd_p0{1}.bimg.gz'.format(obsid, dataclass)
+        pixgtifile = '{0}xtd_a0{1}.fpix.gz'.format(obsid, dataclass)
+        emapfile = '{0}xtd_a0{1}.expo'.format(obsid, dataclass)
+        logfile = 'make_expo_{0}xtd_p0{1}.log'.format(obsid, dataclass)
+        self.xtd_xaexpmap(instmap=instmap, ehkfile=ehkfile, gtifile=eventfile, badimgfile=badimgfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        with open("region_xtd_src.reg", "r") as f:
+            s = f.read()
+            XDETX0=re.search(r'\(([\d\.]*),([\d\.]*),[\d\.]*,[\d\.]*,[\d\.]*\)', s).group(1)
+            XDETY0=re.search(r'\(([\d\.]*),([\d\.]*),[\d\.]*,[\d\.]*,[\d\.]*\)', s).group(2)
+        source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XDETX0, Y0=XDETY0)
+        xrtevtfile = 'raytrace_{0}xtd_p0{1}_boxreg_ptsrc.fits'.format(obsid, dataclass)
+        self.xtd_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, source_ra=source_ra, source_dec=source_dec)
+
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
