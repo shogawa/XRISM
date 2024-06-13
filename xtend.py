@@ -11,6 +11,9 @@ os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
 os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
 instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'
 
+os.environ['HEADASNOQUERY'] = ''
+os.environ['HEADASPROMPT'] = '/dev/null'
+
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')

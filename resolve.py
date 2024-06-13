@@ -10,6 +10,9 @@ os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x8
 os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
 os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
 
+os.environ['HEADASNOQUERY'] = ''
+os.environ['HEADASPROMPT'] = '/dev/null'
+
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
