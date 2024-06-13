@@ -13,13 +13,11 @@ os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xri
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
-    output = output[:-1] # fix for index out for range in 'env[ line[0] ] = line[1]'
+    output = output[:-1]
 
     env = {}
-    # split using null char
     for line in output.split('\x00'):
         line = line.split( '=', 1)
-        # print(line)
         env[ line[0] ] = line[1]
 
     os.environ.update(env)
@@ -164,6 +162,56 @@ class ResolveTools:
         process = subprocess.Popen(['rslpha2pi', *rslpha2pi_inputs], text=True)
         process.wait()
         return outfile
+
+    def calspec(self, eventdir, specfile, obsid, pixel='0:11,13:26,28:35', grade='0:0'):
+        ftcopy_inputs = [
+            os.environ['CALDB'] + '/data/xrism/resolve/bcf/response/xa_rsl_rmfparam_20190101v005.fits.gz[GAUSFWHM1]',
+            'xa_rsl_rmfparam_fordiagrmf.fits',
+            'clobber=yes'
+        ]
+        ftcalc_inputs = [
+            'xa_rsl_rmfparam_fordiagrmf.fits[GAUSFWHM1]',
+            'xa_rsl_rmfparam_fordiagrmf.fits',
+            'PIXEL0',
+            '0.000000001',
+            'rows=-',
+            'clobber=yes'
+        ]
+        rslrmf_inputs = [
+            'NONE',
+            'newdiag',
+            'whichrmf=S',
+            'rmfparamfile=xa_rsl_rmfparam_fordiagrmf.fits'
+            'clobber=yes'
+        ]
+        process = subprocess.Popen(['ftcopy', *ftcopy_inputs], text=True)
+        process.wait()
+        process = subprocess.Popen(['ftcalc', *ftcalc_inputs], text=True)
+        process.wait()
+        process = subprocess.Popen(['rslrmf', *rslrmf_inputs], text=True)
+        process.wait()
+
+        eventfile_fe55 = '{0}rsl_p0px5000_cl.evt.gz'.format(obsid)
+        if os.path.islink(eventfile_fe55): os.unlink(eventfile_fe55)
+        os.symlink('{0}/resolve/event_cl/{1}'.format(eventdir, eventfile_fe55), eventfile_fe55)
+
+        commands = [
+            'xsel',
+            'no',
+            'read event {0}'.format(eventfile_fe55),
+            './',
+            'yes',
+            'filter pha_cutoff 0 59999',
+            'filter column "PIXEL={0}"'.format(pixel),
+            'filter GRADE "{0}"'.format(grade),
+            'extract spectrum',
+            'save spec {0} clobber=yes'.format(specfile),
+            'exit',
+            'no'
+        ]
+        process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
+        results = process.communicate('\n'.join(commands))
+        process.wait()
 
     def rsl_imgextract(self, eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000):
         commands = [
@@ -517,6 +565,25 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+    def rsl_products_pixel_by_pixel(self, eventfile):
+        obsid = self.obsid
+        filter = self.filter
+        whichrmf = self.whichrmf
+        for pix in range(36):
+            specfile = "{0}rsl_src_pix{1:02d}.pha".format(obsid, pix)
+            respfile = "{0}rsl_{1}_pix{2:02d}.rmf".format(obsid, whichrmf, pix)
+            ancrfile = "{0}rsl_{1}_pix{2:02d}.arf".format(obsid, whichrmf, pix)
+            regionfile = 'region_RSL_det_pix{0:02d}.reg'.format(pix)
+            self.rsl_specextract(eventfile, specfile)
+            self.rsl_mkrmf(eventfile, respfile, whichrmf, pixlist=pix)
+
+            emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
+            RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+            source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+            xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
+            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
 
 if __name__ == "__main__":
     args = get_argument()

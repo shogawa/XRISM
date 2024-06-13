@@ -14,13 +14,11 @@ instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
-    output = output[:-1] # fix for index out for range in 'env[ line[0] ] = line[1]'
+    output = output[:-1]
 
     env = {}
-    # split using null char
     for line in output.split('\x00'):
         line = line.split( '=', 1)
-        # print(line)
         env[ line[0] ] = line[1]
 
     os.environ.update(env)
