@@ -324,12 +324,12 @@ class XtendTools:
         eventdir = self.eventdir
         eventfile = '{0}xtd_p0{1}_cl.evt.gz'.format(obsid, dataclass)
         specfile = "{0}xtd_src.pi".format(obsid)
-        outfile = "{0}xtd_srgr1.pi".format(obsid)
+        outfile = "{0}xtd_srgr30.pi".format(obsid)
         backfile = "{0}xtd_bgd.pi".format(obsid)
         respfile = "{0}xtd_src.rmf".format(obsid)
         ancrfile = "{0}xtd_src.arf".format(obsid)
         grouptype = "min"
-        groupscale = "1"
+        groupscale = "30"
         self.xtd_copy(eventdir, obsid, dataclass)
         self.xtd_imgextract(eventfile, obsid, dataclass)
         self.xtd_srclcextract(eventfile, obsid)
