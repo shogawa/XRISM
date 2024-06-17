@@ -1,4 +1,4 @@
-
+from argparse import ArgumentParser
 from decimal import Decimal, ROUND_HALF_UP
 import datetime
 from math import log10, floor
@@ -6,16 +6,18 @@ import os
 import re
 
 import astropy.io.fits as pyfits
-from astropy.time import Time
-from astropy.time import TimeDelta
 from astropy.visualization import ZScaleInterval,ImageNormalize
 from astropy.wcs import WCS
-import astropy.units as UNITS
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import numpy as np
+
+def get_argument():
+    argparser = ArgumentParser(description='This is the Resolve data reduction program.')
+    argparser.add_argument('-if', '--imgfile', default='xa000162000xtd_p031100010_detimg.fits', help='Image file')
+    return argparser.parse_args()
 
 def calculate_centroid(img, x1, y1, x2, y2):
     ix1 = int(x1)
@@ -151,6 +153,7 @@ def plot_xtd_image(imgFile):
 
 
 if __name__ == "__main__":
-    imgFile = "xa000162000xtd_p031100010_detimg.fits"
+    args = get_argument()
+    imgFile = args.imgfile
     fig = plot_xtd_image(imgFile)
     fig.savefig("xtd_img.pdf",bbox_inches='tight', dpi=300,transparent=True)
