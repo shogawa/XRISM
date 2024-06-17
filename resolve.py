@@ -6,13 +6,6 @@ import re
 import shutil
 import subprocess
 
-os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
-os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
-os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
-
-os.environ['HEADASNOQUERY'] = ''
-os.environ['HEADASPROMPT'] = '/dev/null'
-
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
@@ -43,6 +36,21 @@ class ResolveTools:
         self.eventdir = eventdir
         self.productsdir = productsdir
 
+        self.pixel_map = {
+            23:[1,6], 24:[2,6], 26:[3,6], 34:[4,6], 32:[5,6], 30:[6,6],
+            21:[1,5], 22:[2,5], 25:[3,5], 33:[4,5], 31:[5,5], 29:[6,5],
+            19:[1,4], 20:[2,4], 18:[3,4], 35:[4,4], 28:[5,4], 27:[6,4],
+             9:[1,3], 10:[2,3], 17:[3,3],  0:[4,3],  2:[5,3],  1:[6,3],
+            11:[1,2], 13:[2,2], 15:[3,2],  7:[4,2],  4:[5,2],  3:[6,2],
+            12:[1,1], 14:[2,1], 16:[3,1],  8:[4,1],  6:[5,1],  5:[6,1]
+        }
+
+        os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+        os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
+        os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+
+        os.environ['HEADASNOQUERY'] = ''
+        os.environ['HEADASPROMPT'] = '/dev/null'
         shell_source(os.environ['HEADAS'] + '/headas-init.sh')
         shell_source(os.environ['CALDB'] + '/software/tools/caldbinit.sh')
 
@@ -569,23 +577,30 @@ class ResolveTools:
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
-    def rsl_products_pixel_by_pixel(self, eventfile):
+    def rsl_products_pixel(self, eventfile, pix):
         obsid = self.obsid
         filter = self.filter
         whichrmf = self.whichrmf
-        for pix in range(36):
-            specfile = "{0}rsl_src_pix{1:02d}.pha".format(obsid, pix)
-            respfile = "{0}rsl_{1}_pix{2:02d}.rmf".format(obsid, whichrmf, pix)
-            ancrfile = "{0}rsl_{1}_pix{2:02d}.arf".format(obsid, whichrmf, pix)
-            regionfile = 'region_RSL_det_pix{0:02d}.reg'.format(pix)
-            self.rsl_specextract(eventfile, specfile)
-            self.rsl_mkrmf(eventfile, respfile, whichrmf, pixlist=pix)
+        pixel_map = self.pixel_map
+        specfile = "{0}rsl_src_pix{1:02d}.pha".format(obsid, pix)
+        respfile = "{0}rsl_{1}_pix{2:02d}.rmf".format(obsid, whichrmf, pix)
+        ancrfile = "{0}rsl_{1}_pix{2:02d}.arf".format(obsid, whichrmf, pix)
+        regionfile = 'region_RSL_det_pix{0:02d}.reg'.format(pix)
+        with open(regionfile, "w") as f:
+            f.write("physical\n")
+            f.write("+box({0},{1},1,1)\n".format(*pixel_map[pix]))
+        self.rsl_specextract(eventfile, specfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, pixlist=pix)
 
-            emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
-            RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
-            source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
-            xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
-            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+        emapfile = '{0}rsl_p0px{1}.expo'.format(obsid, filter)
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        source_ra, source_dec = self.rsl_coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5)
+        xrtevtfile = 'raytrace_{0}rsl_p0px{1}_ptsrc.fits'.format(obsid, filter)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
+    def rsl_products_pixel_by_pixel(self, eventfile):
+        for pix in range(36):
+            self.rsl_products_pixel(self, eventfile, pix)
 
 
 if __name__ == "__main__":
