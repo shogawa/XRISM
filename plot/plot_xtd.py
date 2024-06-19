@@ -1,4 +1,4 @@
-
+#! /usr/bin/env python3
 from decimal import Decimal, ROUND_HALF_UP
 import datetime
 from math import log10, floor
