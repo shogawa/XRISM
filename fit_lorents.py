@@ -23,12 +23,12 @@ from scipy.ndimage import gaussian_filter1d
 c = Const.c.to('km/s').value
 
 def get_argument():
-    argparser = ArgumentParser(description='This is the error calculation program.')
+    argparser = ArgumentParser(description='This is the line fitting program.')
     argparser.add_argument('-t', '--target', default='Circinus galaxy', help='target name')
     argparser.add_argument('-l', '--line', default='FeKa', help='Line name')
     argparser.add_argument('-sf', '--specfile', default='xa000162000rsl_pixgr1.pha', help='spectra')
-    argparser.add_argument('-rf', '--respfile', default='xa000162000rsl_X_comb.rmf', help='responce')
-    argparser.add_argument('-af', '--anclfile', default='xa000162000rsl_X_comb.arf', help='responce')
+    argparser.add_argument('-rf', '--respfile', default=False, help='responce')
+    argparser.add_argument('-af', '--anclfile', default=False, help='anclfile')
     return argparser.parse_args()
 
 def getNearestValue(list, num, sidx="no"):
@@ -145,7 +145,8 @@ linelist = {
 
 args = get_argument()
 file = args.specfile
-respFIle = args.respfile
+respfile = args.respfile
+anclfile = args.anclfile
 target = args.target
 line = args.line
 
@@ -164,7 +165,8 @@ xs.Xset.parallel.walkers = 12
 xs.AllData(file)
 
 s = xs.AllData(1)
-s.response = respFIle
+if respfile : s.response = respfile
+if anclfile : s.response.arf = anclfile
 resp = s.response
 
 lines = np.array(linelist[line])
