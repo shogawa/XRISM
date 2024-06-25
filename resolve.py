@@ -8,6 +8,11 @@ import re
 import shutil
 import subprocess
 
+HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+CALDB = '/home/ogawa/work/tools/caldb'
+XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+rmfparamfile = '/home/ogawa/work/tools/heasoft/xrism/xa_rsl_rmfparam_20190101v006.fits.gz'
+
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
     output = pipe.communicate()[0].decode('utf-8')
@@ -47,9 +52,9 @@ class ResolveTools:
             12:[1,1], 14:[2,1], 16:[3,1],  8:[4,1],  6:[5,1],  5:[6,1]
         }
 
-        os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
-        os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
-        os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+        os.environ['HEADAS'] = HEADAS
+        os.environ['CALDB'] = CALDB
+        os.environ['XSELECT_MDB'] = XSELECT_MDB
 
         os.environ['HEADASNOQUERY'] = ''
         os.environ['HEADASPROMPT'] = '/dev/null'
@@ -283,7 +288,7 @@ class ResolveTools:
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def rsl_mkrmf(self, infile, respfile, whichrmf, regmode='DET', resolist='0', regionfile='NONE', pixlist='0-11,13-26,28-35', eminin='0.0', dein='0.5', nchanin='60000', useingrd='no', eminout='0.0', deout='0.5', nchanout='60000', clobber='yes'):
+    def rsl_mkrmf(self, infile, respfile, whichrmf, regmode='DET', resolist='0', regionfile='NONE', pixlist='0-11,13-26,28-35', eminin='0.0', dein='0.5', nchanin='60000', useingrd='no', eminout='0.0', deout='0.5', nchanout='60000', clobber='yes', rmfparamfile='CALDB'):
         outroot = "{0}".format(respfile.strip('_comb.rmf'))
         inputs = [
             'infile='+str(infile),
@@ -300,6 +305,7 @@ class ResolveTools:
             'eminout='+str(eminout),
             'deout='+str(deout),
             'nchanout='+str(nchanout),
+            'rmfparamfile='+str(rmfparamfile),
             'clobber='+str(clobber)
         ]
         if 'comb' in whichrmf: inputs += ['splitrmf=yes', 'elcbinfac=16', 'splitcomb=yes']
@@ -455,7 +461,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -470,6 +476,12 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+        whichrmf = "X_comb"
+        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_Ls(self):
         obsid = self.obsid
@@ -490,7 +502,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, obsid, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -505,6 +517,12 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+        whichrmf = "X_comb"
+        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
 
     def rsl_products_gain(self):
@@ -527,7 +545,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -542,6 +560,12 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+        whichrmf = "X_comb"
+        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_gain_Ls(self):
         obsid = self.obsid
@@ -563,7 +587,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -578,6 +602,13 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+        whichrmf = "X_comb"
+        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+
 
     def rsl_products_pixel(self, eventfile, pix):
         obsid = self.obsid

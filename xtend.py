@@ -8,13 +8,10 @@ import re
 import shutil
 import subprocess
 
-os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
-os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
-os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+CALDB = '/home/ogawa/work/tools/caldb'
+XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
 instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'
-
-os.environ['HEADASNOQUERY'] = ''
-os.environ['HEADASPROMPT'] = '/dev/null'
 
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
@@ -44,6 +41,12 @@ class XtendTools:
         self.eventdir = eventdir
         self.productsdir = productsdir
 
+        os.environ['HEADAS'] = HEADAS
+        os.environ['CALDB'] = CALDB
+        os.environ['XSELECT_MDB'] = XSELECT_MDB
+
+        os.environ['HEADASNOQUERY'] = ''
+        os.environ['HEADASPROMPT'] = '/dev/null'
         shell_source(os.environ['HEADAS'] + '/headas-init.sh')
         shell_source(os.environ['CALDB'] + '/software/tools/caldbinit.sh')
 
