@@ -484,8 +484,9 @@ class ResolveTools:
         whichrmf = "X_comb"
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
-        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+        if not pathlib.Path(respfile).exists():
+            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_Ls(self):
         obsid = self.obsid
@@ -525,8 +526,9 @@ class ResolveTools:
         whichrmf = "X_comb"
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
-        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+        if not pathlib.Path(respfile).exists():
+            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
 
     def rsl_products_gain(self):
@@ -568,8 +570,9 @@ class ResolveTools:
         whichrmf = "X_comb"
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
-        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+        if not pathlib.Path(respfile).exists():
+            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_gain_Ls(self):
         obsid = self.obsid
@@ -610,8 +613,9 @@ class ResolveTools:
         whichrmf = "X_comb"
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
-        self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
+        if not pathlib.Path(respfile).exists():
+            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
 
     def rsl_products_pixel(self, eventfile, pix):
