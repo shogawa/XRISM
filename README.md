@@ -13,15 +13,15 @@ e.g.,
 ```
 wget -nv -m -np -nH --cut-dirs=6 -R "index.html*" --execute robots=off --wait=1 https://data.darts.isas.jaxa.jp/pub/xrism/data/obs/rev3/0/000162000/
 ./decrypt_data.pl -r -d 000162000 -p PGPKEY
-mkdir -p 00016200/analysis
-python resolve.py -oi xa000162000 -fi 1000 -wr S -ed 00016200 -pd 00016200/analysis
-python xtend.py -oi xa000162000 -dc 31100010 -ed 00016200 -pd 00016200/analysis
+mkdir -p 00016200/products
+python resolve.py -oi xa000162000 -fi 1000 -wr S -ed 00016200 -pd 00016200/products
+python xtend.py -oi xa000162000 -dc 31100010 -ed 00016200 -pd 00016200/products
 ```
 
 ## Premise
 ```
 000162000
-├── analysis
+├── products
 ├── auxill
 ├── log
 ├── resolve
@@ -31,8 +31,9 @@ python xtend.py -oi xa000162000 -dc 31100010 -ed 00016200 -pd 00016200/analysis
 ## Setting
 The followings should be changed:
 ```
-os.environ['HEADAS'] = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
-os.environ['CALDB'] = '/home/ogawa/work/tools/caldb'
-os.environ['XSELECT_MDB'] ='/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+CALDB = '/home/ogawa/work/tools/caldb'
+XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
+rmfparamfile = '/home/ogawa/work/tools/heasoft/xrism/xa_rsl_rmfparam_20190101v006.fits.gz'
 instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'
 ```
