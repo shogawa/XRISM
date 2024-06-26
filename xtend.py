@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 import datetime
 import os
-from pathlib import Path
+import pathlib
 import re
 import shutil
 import subprocess
@@ -38,8 +38,8 @@ class XtendTools:
     def __init__(self, obsid, dataclass, eventdir='..', productsdir='.'):
         self.obsid = obsid
         self.dataclass = dataclass
-        self.eventdir = eventdir
-        self.productsdir = productsdir
+        self.eventdir =  pathlib.Path(eventdir).resolve()
+        self.productsdir =  pathlib.Path(productsdir).resolve()
 
         os.environ['HEADAS'] = HEADAS
         os.environ['CALDB'] = CALDB
@@ -50,28 +50,30 @@ class XtendTools:
         shell_source(os.environ['HEADAS'] + '/headas-init.sh')
         shell_source(os.environ['CALDB'] + '/software/tools/caldbinit.sh')
 
+        productsdir = pathlib.Path(productsdir).resolve()
+        productsdir.mkdir(parents=True, exist_ok=True)
         os.chdir(productsdir)
         now = datetime.datetime.now()
-        pfiles_dir = "pfiles" + now.strftime('%Y%m%d%H%M%S')
-        os.makedirs(pfiles_dir, exist_ok=True)
-        pfiles_path = Path(pfiles_dir).resolve()
-        self.pfiles_path = pfiles_path
+        pfiles_dir = pathlib.Path(productsdir).resolve().joinpath("pfiles" + now.strftime('%Y%m%d%H%M%S'))
+        pfiles_dir.mkdir(parents=True, exist_ok=True)
+        self.pfiles_path = pfiles_dir.absolute()
         headas_syspfiles = os.environ.get("HEADAS", "") + "/syspfiles"
-        pfiles_env = str(pfiles_path) + ";" + headas_syspfiles
+        pfiles_env = str(pfiles_dir.absolute()) + ";" + headas_syspfiles
         os.environ["PFILES"] = pfiles_env
 
     def __del__(self):
         shutil.rmtree(self.pfiles_path)
 
     def xtd_copy(self, eventdir, obsid, dataclass):
+        eventdir = pathlib.Path(eventdir).resolve()
         eventfile = '{0}xtd_p0{1}_cl.evt.gz'.format(obsid, dataclass)
         bimgfile = '{0}xtd_p0{1}.bimg.gz'.format(obsid, dataclass)
         fpixfile = '{0}xtd_a0{1}.fpix.gz'.format(obsid, dataclass)
         ehkfile = '{0}.ehk.gz'.format(obsid)
-        if os.path.islink(eventfile): os.unlink(eventfile)
-        if os.path.islink(bimgfile): os.unlink(bimgfile)
-        if os.path.islink(fpixfile): os.unlink(fpixfile)
-        if os.path.islink(ehkfile): os.unlink(ehkfile)
+        if pathlib.Path(eventfile).exists(): pathlib.Path(eventfile).unlink()
+        if pathlib.Path(bimgfile).exists(): pathlib.Path(bimgfile).unlink()
+        if pathlib.Path(fpixfile).exists(): pathlib.Path(fpixfile).unlink()
+        if pathlib.Path(ehkfile).exists(): pathlib.Path(ehkfile).unlink()
 
         os.symlink('{0}/xtend/event_cl/{1}'.format(eventdir, eventfile), eventfile)
         os.symlink('{0}/xtend/event_uf/{1}'.format(eventdir, bimgfile), bimgfile)

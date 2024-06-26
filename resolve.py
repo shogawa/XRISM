@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 import datetime
 import os
-from pathlib import Path
+import pathlib
 import re
 import shutil
 import subprocess
@@ -40,8 +40,8 @@ class ResolveTools:
         self.obsid = obsid
         self.filter = filter
         self.whichrmf = whichrmf
-        self.eventdir = eventdir
-        self.productsdir = productsdir
+        self.eventdir =  pathlib.Path(eventdir).resolve()
+        self.productsdir =  pathlib.Path(productsdir).resolve()
 
         self.pixel_map = {
             23:[1,6], 24:[2,6], 26:[3,6], 34:[4,6], 32:[5,6], 30:[6,6],
@@ -61,26 +61,28 @@ class ResolveTools:
         shell_source(os.environ['HEADAS'] + '/headas-init.sh')
         shell_source(os.environ['CALDB'] + '/software/tools/caldbinit.sh')
 
+        productsdir = pathlib.Path(productsdir).resolve()
+        productsdir.mkdir(parents=True, exist_ok=True)
         os.chdir(productsdir)
         now = datetime.datetime.now()
-        pfiles_dir = "pfiles" + now.strftime('%Y%m%d%H%M%S')
-        os.makedirs(pfiles_dir, exist_ok=True)
-        pfiles_path = Path(pfiles_dir).resolve()
-        self.pfiles_path = pfiles_path
+        pfiles_dir = pathlib.Path(productsdir).resolve().joinpath("pfiles" + now.strftime('%Y%m%d%H%M%S'))
+        pfiles_dir.mkdir(parents=True, exist_ok=True)
+        self.pfiles_path = pfiles_dir.absolute()
         headas_syspfiles = os.environ.get("HEADAS", "") + "/syspfiles"
-        pfiles_env = str(pfiles_path) + ";" + headas_syspfiles
+        pfiles_env = str(pfiles_dir.absolute()) + ";" + headas_syspfiles
         os.environ["PFILES"] = pfiles_env
 
     def __del__(self):
         shutil.rmtree(self.pfiles_path)
 
     def rsl_copy(self, eventdir, obsid, filter):
+        eventdir = pathlib.Path(eventdir).resolve()
         eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
         ehkfile = '{0}.ehk.gz'.format(obsid)
-        if os.path.islink(eventfile): os.unlink(eventfile)
-        if os.path.islink(pixgtifile): os.unlink(pixgtifile)
-        if os.path.islink(ehkfile): os.unlink(ehkfile)
+        if pathlib.Path(eventfile).exists(): pathlib.Path(eventfile).unlink()
+        if pathlib.Path(pixgtifile).exists(): pathlib.Path(pixgtifile).unlink()
+        if pathlib.Path(ehkfile).exists(): pathlib.Path(ehkfile).unlink()
 
         os.symlink('{0}/resolve/event_cl/{1}'.format(eventdir, eventfile), eventfile)
         os.symlink('{0}/resolve/event_uf/{1}'.format(eventdir, pixgtifile), pixgtifile)
@@ -88,21 +90,21 @@ class ResolveTools:
 
         with open("region_RSL_det.reg", "w") as f:
             f.write("physical\n")
-            f.write("+box(4,1,5,1.00000000)\n")
-            f.write("+box(3.5,2,6,1.00000000)\n")
-            f.write("+box(3.5,3,6,1.00000000)\n")
-            f.write("+box(3.5,4,6,1.00000000)\n")
-            f.write("+box(3.5,5,6,1.00000000)\n")
-            f.write("+box(3.5,6,6,1.00000000)\n")
+            f.write("+box(4,1,5,1)\n")
+            f.write("+box(3.5,2,6,1)\n")
+            f.write("+box(3.5,3,6,1)\n")
+            f.write("+box(3.5,4,6,1)\n")
+            f.write("+box(3.5,5,6,1)\n")
+            f.write("+box(3.5,6,6,1)\n")
 
         with open("region_RSL_det_27.reg", "w") as f:
             f.write("physical\n")
-            f.write("+box(4,1,5,1.00000000)\n")
-            f.write("+box(3.5,2,6,1.00000000)\n")
-            f.write("+box(3.5,3,6,1.00000000)\n")
-            f.write("+box(3,4,5,1.00000000)\n")
-            f.write("+box(3.5,5,6,1.00000000)\n")
-            f.write("+box(3.5,6,6,1.00000000)\n")
+            f.write("+box(4,1,5,1)\n")
+            f.write("+box(3.5,2,6,1)\n")
+            f.write("+box(3.5,3,6,1)\n")
+            f.write("+box(3,4,5,1)\n")
+            f.write("+box(3.5,5,6,1)\n")
+            f.write("+box(3.5,6,6,1)\n")
 
     def rsl_rise_time_screenin(self, eventfile, obsid, filter):
         infile = eventfile + "[EVENTS][(PI>=600) && (((((RISE_TIME+0.00075*DERIV_MAX)>46)&&((RISE_TIME+0.00075*DERIV_MAX)<58))&&ITYPE<4)||(ITYPE==4))&&STATUS[4]==b0]"
@@ -133,8 +135,9 @@ class ResolveTools:
         return outfile
 
     def rsl_gain_gti(self, eventfile, eventdir, obsid, filter):
+        eventdir = pathlib.Path(eventdir).resolve()
         eventfile_fe55 = '{0}rsl_p0px5000_uf.evt.gz'.format(obsid)
-        if os.path.islink(eventfile_fe55): os.unlink(eventfile_fe55)
+        if pathlib.Path(eventfile_fe55).exists(): pathlib.Path(eventfile_fe55).unlink()
         os.symlink('{0}/resolve/event_uf/{1}'.format(eventdir, eventfile_fe55), eventfile_fe55)
         outfile = '{0}rsl_p0px{1}_cl_gain.evt'.format(obsid, filter)
         mgtime_inputs = [
@@ -182,6 +185,7 @@ class ResolveTools:
         return outfile
 
     def calspec(self, eventdir, specfile, obsid, pixel='0:11,13:26,28:35', grade='0:0'):
+        eventdir = pathlib.Path(eventdir).resolve()
         ftcopy_inputs = [
             os.environ['CALDB'] + '/data/xrism/resolve/bcf/response/xa_rsl_rmfparam_20190101v005.fits.gz[GAUSFWHM1]',
             'xa_rsl_rmfparam_fordiagrmf.fits',
@@ -210,7 +214,7 @@ class ResolveTools:
         process.wait()
 
         eventfile_fe55 = '{0}rsl_p0px5000_cl.evt.gz'.format(obsid)
-        if os.path.islink(eventfile_fe55): os.unlink(eventfile_fe55)
+        if pathlib.Path(eventfile_fe55).exists(): pathlib.Path(eventfile_fe55).unlink()
         os.symlink('{0}/resolve/event_cl/{1}'.format(eventdir, eventfile_fe55), eventfile_fe55)
 
         commands = [
