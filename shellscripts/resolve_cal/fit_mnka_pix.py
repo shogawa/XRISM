@@ -78,8 +78,8 @@ def plot_resluts(plot_data, gsmooth, offset, pixel):
     color=cmp(0)
 
     txt = target.replace('GC', 'GC ').replace('IC', 'IC ').replace('-', '$-$').replace('CenA', 'Centaurus A')
-    txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*gsmooth*2.35)
-    txt += "\noffset: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*offset)
+    txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth*np.log(256)**0.5)
+    txt += "\noffset: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*offset)
     axes[0].text(0.01, 0.70, txt, transform=axes[0].transAxes, size=12)
 
 
@@ -170,7 +170,7 @@ errp = m1.gsmooth.Sig_6keV.error[1] - m1.gsmooth.Sig_6keV.values[0]
 value = m1.gsmooth.Sig_6keV.values[0]
 gsmooth = np.array([value, errp, errn])*1000
 print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth))
-print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2.35))
+print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*np.log(256)**0.5))
 
 errn = resp.gain.offset.values[0] - resp.gain.offset.error[0]
 errp = resp.gain.offset.error[1] - resp.gain.offset.values[0]
@@ -207,7 +207,7 @@ for pixel in range(36):
     value = m1.gsmooth.Sig_6keV.values[0]
     gsmooth = np.array([value, errp, errn])*1000
     print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth))
-    print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2.35))
+    print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*np.log(256)**0.5))
 
     errn = resp.gain.offset.values[0] - resp.gain.offset.error[0]
     errp = resp.gain.offset.error[1] - resp.gain.offset.values[0]

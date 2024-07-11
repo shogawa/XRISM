@@ -8,7 +8,7 @@ import re
 import shutil
 import subprocess
 
-HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_20Jun2024_Build8/x86_64-pc-linux-gnu-libc2.31'
 CALDB = '/home/ogawa/work/tools/caldb'
 XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
 rmfparamfile = '/home/ogawa/work/tools/heasoft/xrism/xa_rsl_rmfparam_20190101v006.fits.gz'
@@ -482,8 +482,8 @@ class ResolveTools:
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
         whichrmf = "X_comb"
-        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
         if not pathlib.Path(respfile).exists():
             self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
             self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
@@ -568,8 +568,8 @@ class ResolveTools:
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
         whichrmf = "X_comb"
-        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
         if not pathlib.Path(respfile).exists():
             self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
             self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)

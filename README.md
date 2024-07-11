@@ -31,7 +31,7 @@ python xtend.py -oi xa000162000 -dc 31100010 -ed 00016200 -pd 00016200/products
 ## Setting
 The followings should be changed:
 ```
-HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31'
+HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_20Jun2024_Build8/x86_64-pc-linux-gnu-libc2.31'
 CALDB = '/home/ogawa/work/tools/caldb'
 XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
 rmfparamfile = '/home/ogawa/work/tools/heasoft/xrism/xa_rsl_rmfparam_20190101v006.fits.gz'

@@ -1,3 +1,8 @@
+## Activate
+```
+source activate.sh
+```
+
 ## Products dataclass 31100010
 ```
 sh xtd_products.sh /path/to/00016200/analysis xa000162000 31100010
