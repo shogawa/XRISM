@@ -33,6 +33,7 @@ def get_argument():
     argparser.add_argument('-wr', '--whichrmf', default='S', help='RMF size')
     argparser.add_argument('-ed', '--eventsdir', default='..', help='Eventfile directory path')
     argparser.add_argument('-pd', '--productsdir', default='.', help='Products directory path')
+    argparser.add_argument('--lsexclude', action='store_true', help='Flag for excluding Ls')
     return argparser.parse_args()
 
 class ResolveTools:
@@ -721,4 +722,7 @@ if __name__ == "__main__":
     eventsdir = args.eventsdir
     productsdir = args.productsdir
     rsl = ResolveTools(obsid, filter, whichrmf, eventsdir, productsdir)
-    rsl.rsl_products()
+    if args.lsexclude:
+        rsl.rsl_products_Ls()
+    else:
+        rsl.rsl_products()
