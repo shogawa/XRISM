@@ -9,10 +9,8 @@ import shutil
 import subprocess
 import sys
 
-HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_20Jun2024_Build8/x86_64-pc-linux-gnu-libc2.31'
+HEADAS = '/home/ogawa/work/tools/heasoft/heasoft-6.34/x86_64-pc-linux-gnu-libc2.31'
 CALDB = '/home/ogawa/work/tools/caldb'
-XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
-rmfparamfile = '/home/ogawa/work/tools/heasoft/xrism/xa_rsl_rmfparam_20190101v006.fits.gz'
 
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
@@ -56,7 +54,6 @@ class ResolveTools:
 
         os.environ['HEADAS'] = HEADAS
         os.environ['CALDB'] = CALDB
-        os.environ['XSELECT_MDB'] = XSELECT_MDB
 
         os.environ['HEADASNOQUERY'] = ''
         os.environ['HEADASPROMPT'] = '/dev/null'
@@ -535,7 +532,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -555,7 +552,7 @@ class ResolveTools:
         respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
         if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_mkrmf(eventfile, respfile, whichrmf)
             self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_Ls(self):
@@ -577,7 +574,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -597,7 +594,7 @@ class ResolveTools:
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
         if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_mkrmf(eventfile, respfile, whichrmf)
             self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
 
@@ -621,7 +618,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -641,7 +638,7 @@ class ResolveTools:
         respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
         if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_mkrmf(eventfile, respfile, whichrmf)
             self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_gain_Ls(self):
@@ -664,7 +661,7 @@ class ResolveTools:
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+        self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -684,7 +681,7 @@ class ResolveTools:
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
         if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf, rmfparamfile=rmfparamfile)
+            self.rsl_mkrmf(eventfile, respfile, whichrmf)
             self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
 

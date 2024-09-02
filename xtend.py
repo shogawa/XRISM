@@ -9,10 +9,8 @@ import shutil
 import subprocess
 import sys
 
-HEADAS = '/home/ogawa/work/tools/heasoft/XRISM_20Jun2024_Build8/x86_64-pc-linux-gnu-libc2.31'
+HEADAS = '/home/ogawa/work/tools/heasoft/heasoft-6.34/x86_64-pc-linux-gnu-libc2.31'
 CALDB = '/home/ogawa/work/tools/caldb'
-XSELECT_MDB = '/home/ogawa/work/tools/heasoft/xrism/xselect.mdb.xrism'
-instmap = '/home/ogawa/work/tools/heasoft/xrism/xa_xtd_instmap_20190101v004.fits'
 
 def shell_source(script):
     pipe = subprocess.Popen(". %s && env -0" % script, stdout=subprocess.PIPE, shell=True)
@@ -44,7 +42,6 @@ class XtendTools:
 
         os.environ['HEADAS'] = HEADAS
         os.environ['CALDB'] = CALDB
-        os.environ['XSELECT_MDB'] = XSELECT_MDB
 
         os.environ['HEADASNOQUERY'] = ''
         os.environ['HEADASPROMPT'] = '/dev/null'
@@ -394,7 +391,7 @@ class XtendTools:
         pixgtifile = '{0}xtd_a0{1}.fpix.gz'.format(obsid, dataclass)
         emapfile = '{0}xtd_a0{1}.expo'.format(obsid, dataclass)
         logfile = 'make_expo_{0}xtd_p0{1}.log'.format(obsid, dataclass)
-        self.xtd_xaexpmap(instmap=instmap, ehkfile=ehkfile, gtifile=eventfile, badimgfile=badimgfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+        self.xtd_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, badimgfile=badimgfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
 
         RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
         if not os.path.isfile("region_xtd_src.reg"): sys.exit(str("region_xtd_src.reg") + ' does not exist.')
