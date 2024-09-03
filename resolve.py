@@ -761,4 +761,4 @@ if __name__ == "__main__":
     else:
         rsl.rsl_products()
     if args.rslnxbgen:
-        rsl.rsl_nxbgen(rsl.eventfile, rsl.ehkfile, nxb_ehk='/home/ogawa/work/tools/heasoft/xrism/merged_reduced_rev3_fix2.ehk', nxb_evt='/home/ogawa/work/tools/heasoft/xrism/merged_nxb_resolve_gtifix.evt.gz')
+        rsl.rsl_nxbgen(rsl.eventfile, rsl.ehkfile, nxb_ehk='/home/ogawa/work/tools/heasoft/xrism/merged_reduced_rev3_fix2.ehk.gz', nxb_evt='/home/ogawa/work/tools/heasoft/xrism/merged_nxb_resolve_gtifix.evt.gz')
