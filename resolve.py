@@ -32,6 +32,7 @@ def get_argument():
     argparser.add_argument('-ed', '--eventsdir', default='..', help='Eventfile directory path')
     argparser.add_argument('-pd', '--productsdir', default='.', help='Products directory path')
     argparser.add_argument('--lsexclude', action='store_true', help='Flag for excluding Ls')
+    argparser.add_argument('--rslnxbgen', action='store_true', help='Flag for rslnxbgen')
     return argparser.parse_args()
 
 class ResolveTools:
@@ -42,6 +43,8 @@ class ResolveTools:
         self.whichrmf = whichrmf
         self.eventsdir =  pathlib.Path(eventsdir).resolve()
         self.productsdir =  pathlib.Path(productsdir).resolve()
+        self.eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
+        self.ehkfile = '{0}.ehk.gz'.format(obsid)
 
         self.pixel_map = {
             23:[1,6], 24:[2,6], 26:[3,6], 34:[4,6], 32:[5,6], 30:[6,6],
@@ -117,7 +120,7 @@ class ResolveTools:
                 f.write("+box(3.5,5,6,1)\n")
                 f.write("+box(3.5,6,6,1)\n")
 
-    def rsl_rise_time_screenin(self, eventfile, obsid, filter):
+    def rsl_rise_time_screening(self, eventfile, obsid, filter):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -133,9 +136,10 @@ class ResolveTools:
             ]
             process = subprocess.Popen(['ftcopy', *inputs], text=True)
             process.wait()
+            self.eventfile = outfile
             return outfile
 
-    def rsl_rise_time_screenin_Ls_excluded(self, eventfile, obsid, filter):
+    def rsl_rise_time_screening_Ls_excluded(self, eventfile, obsid, filter):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -151,6 +155,7 @@ class ResolveTools:
             ]
             process = subprocess.Popen(['ftcopy', *inputs], text=True)
             process.wait()
+            self.eventfile = outfile
             return outfile
 
     def rsl_gain_gti(self, eventfile, eventsdir, obsid, filter):
@@ -201,6 +206,8 @@ class ResolveTools:
         process.wait()
         process = subprocess.Popen(['rslpha2pi', *rslpha2pi_inputs], text=True)
         process.wait()
+
+        self.eventfile = outfile
         return outfile
 
     def calspec(self, eventsdir, specfile, obsid, pixel='0:11,13:26,28:35', grade='0:0'):
@@ -444,6 +451,66 @@ class ResolveTools:
             process = subprocess.Popen(['xaarfgen', *inputs], text=True)
             process.wait()
 
+    def rsl_nxbgen(self, cl_evt, ehkfile, nxb_ehk, nxb_evt):
+        if not os.path.isfile(nxb_ehk):
+            print(str(nxb_ehk) + ' does not exist.')
+            return 1
+        elif not os.path.isfile(nxb_evt):
+            print(str(nxb_evt) + ' does not exist.')
+            return 1
+        elif not os.path.isfile(cl_evt):
+            print(str(cl_evt) + ' does not exist.')
+            return 1
+        else:
+            inputs = [
+                'infile='+str(nxb_ehk),
+                'outfile='+str('ehkSelA.gti'),
+                'expr='+str('T_SAA_SXS>0 && ELV<-5 && DYE_ELV>5'),
+                'compact='+str('no'),
+                'time='+str('TIME')
+            ]
+            process = subprocess.Popen(['maketime', *inputs], text=True)
+            process.wait()
+
+            inputs = [
+                'filename='+str(nxb_evt),
+                'eventsout='+str('merged_nxb_resolve_gtifix_ehkSel.evt'),
+                'imgfile='+str('NONE'),
+                'phafile='+str('NONE'),
+                'fitsbinlc='+str('NONE'),
+                'regionfile='+str('NONE'),
+                'timefile='+str('ehkSelA.gti'),
+                'xcolf='+str('X'),
+                'ycolf='+str('Y'),
+                'tcol='+str('TIME'),
+                'ecol='+str('PI'),
+                'xcolh='+str('DETX'),
+                'ycolh='+str('DETX')
+            ]
+            process = subprocess.Popen(['extractor', *inputs], text=True)
+            process.wait()
+
+            inputs = [
+                'infile='+str(cl_evt),
+                'ehkfile='+str(ehkfile),
+                'regfile='+str('NONE'),
+                'pixels='+str('-'),
+                'innxbfile='+str('merged_nxb_resolve_gtifix_ehkSel.evt'),
+                'innxbehk='+str(nxb_ehk),
+                'database='+str('LOCAL'),
+                'db_location='+str('./'),
+                'timefirst='+str('-150'),
+                'timelast='+str('+150'),
+                'SORTCOL='+str('CORTIME'),
+                'sortbin='+str('0,6,8,10,12,99'),
+                'expr='+str('(PI>=600) && ((RISE_TIME+0.00075*DERIV_MAX)>46) && ((RISE_TIME+0.00075*DERIV_MAX)<58) && (ITYPE==0) && (STATUS[4]==b0) && (PIXEL!=27)'),
+                'outpifile='+str('rslnxb.pi'),
+                'outnxbfile='+str('rslnxb.evt'),
+                'outnxbehk='+str('rslnxb.ehk')
+            ]
+            process = subprocess.Popen(['rslnxbgen', *inputs], text=True)
+            process.wait()
+
     def rsl_coordpnt(self, RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5):
         inputs =[
             'input={0},{1}'.format(X0, Y0),
@@ -528,7 +595,7 @@ class ResolveTools:
         grouptype = "min"
         groupscale = "1"
         self.rsl_copy(eventsdir, obsid, filter)
-        eventfile = self.rsl_rise_time_screenin(eventfile, obsid, filter)
+        eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
@@ -547,13 +614,6 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-
-        whichrmf = "X_comb"
-        respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
-        if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf)
-            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_Ls(self):
         obsid = self.obsid
@@ -570,7 +630,7 @@ class ResolveTools:
         grouptype = "min"
         groupscale = "1"
         self.rsl_copy(eventsdir, obsid, filter)
-        eventfile = self.rsl_rise_time_screenin_Ls_excluded(eventfile, obsid, filter)
+        eventfile = self.rsl_rise_time_screening_Ls_excluded(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
@@ -589,14 +649,6 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-
-        whichrmf = "X_comb"
-        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
-        if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf)
-            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
-
 
     def rsl_products_gain(self):
         obsid = self.obsid
@@ -614,7 +666,7 @@ class ResolveTools:
         self.rsl_copy(eventsdir, obsid, filter)
         eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         eventfile = self.rsl_gain_gti(eventfile, eventsdir, obsid, filter)
-        eventfile = self.rsl_rise_time_screenin(eventfile, obsid, filter)
+        eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
@@ -633,13 +685,6 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-
-        whichrmf = "X_comb"
-        respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
-        if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf)
-            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
 
     def rsl_products_gain_Ls(self):
         obsid = self.obsid
@@ -657,7 +702,7 @@ class ResolveTools:
         self.rsl_copy(eventsdir, obsid, filter)
         eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         eventfile = self.rsl_gain_gti(eventfile, eventsdir, obsid, filter)
-        eventfile = self.rsl_rise_time_screenin_Ls_excluded(eventfile, obsid, filter)
+        eventfile = self.rsl_rise_time_screening_Ls_excluded(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
         self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_specextract(eventfile, specfile)
@@ -676,14 +721,6 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-
-        whichrmf = "X_comb"
-        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
-        if not pathlib.Path(respfile).exists():
-            self.rsl_mkrmf(eventfile, respfile, whichrmf)
-            self.rsl_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, regionfile=regionfile, source_ra=source_ra, source_dec=source_dec)
-
 
     def rsl_products_pixel(self, eventfile, pix):
         obsid = self.obsid
@@ -723,3 +760,5 @@ if __name__ == "__main__":
         rsl.rsl_products_Ls()
     else:
         rsl.rsl_products()
+    if args.rslnxbgen:
+        rsl.rsl_nxbgen(rsl.eventfile, rsl.ehkfile, nxb_ehk='/home/ogawa/work/tools/heasoft/xrism/merged_reduced_rev3_fix2.ehk', nxb_evt='/home/ogawa/work/tools/heasoft/xrism/merged_nxb_resolve_gtifix.evt.gz')
