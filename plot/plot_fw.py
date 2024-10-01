@@ -18,7 +18,10 @@ def get_argument():
     argparser = ArgumentParser(description='This is the Resolve Plot program.')
     argparser.add_argument('-oi', '--obsid', default='xa000162000', help='OBSID')
     argparser.add_argument('-cl', '--clevt', help='Cleand event file')
-    argparser.add_argument('-ed', '--eventsdir', default='.', help='Eventfile directory path')
+    argparser.add_argument('-fe', '--feghf', help='Fe55 gain history file')
+    argparser.add_argument('-cal', '--calghf', help='CAL pixel gain history file')
+    argparser.add_argument('-hk', '--hkfile', help='HK file')
+    #argparser.add_argument('-ed', '--eventsdir', default='.', help='Eventfile directory path')
     return argparser.parse_args()
 
 def plot_rsl_branting_ratio(evtFile):
@@ -102,17 +105,20 @@ if __name__ == "__main__":
     args = get_argument()
     obsid = args.obsid
     evtFile = args.clevt
-    eventsdir = args.eventsdir
+    feghfFile = args.feghf
+    calghfFile = args.calghf
+    hkFile = args.hkfile
 
-    eventsdir = pathlib.Path(eventsdir).resolve()
-    feghfFile = eventsdir.joinpath('resolve/event_uf/{0}rsl_000_fe55.ghf.gz'.format(obsid))
-    calghfFile = eventsdir.joinpath('resolve/event_uf/{0}rsl_000_pxcal.ghf.gz'.format(obsid))
-    hkFile = eventsdir.joinpath('resolve/hk/{0}rsl_a0.hk1.gz'.format(obsid))
+    #eventsdir = args.eventsdir
+    #eventsdir = pathlib.Path(eventsdir).resolve()
+    #feghfFile = eventsdir.joinpath('resolve/event_uf/{0}rsl_000_fe55.ghf.gz'.format(obsid))
+    #calghfFile = eventsdir.joinpath('resolve/event_uf/{0}rsl_000_pxcal.ghf.gz'.format(obsid))
+    #hkFile = eventsdir.joinpath('resolve/hk/{0}rsl_a0.hk1.gz'.format(obsid))
 
     if not pathlib.Path(evtFile).exists(): sys.exit(str(evtFile) + ' does not exist.')
-    if not feghfFile.exists(): sys.exit(str(feghfFile) + ' does not exist.')
-    if not calghfFile.exists(): sys.exit(str(calghfFile) + ' does not exist.')
-    if not hkFile.exists(): sys.exit(str(hkFile) + ' does not exist.')
+    if not pathlib.Path(feghfFile).exists(): sys.exit(str(feghfFile) + ' does not exist.')
+    if not pathlib.Path(calghfFile).exists(): sys.exit(str(calghfFile) + ' does not exist.')
+    if not pathlib.Path(hkFile).exists(): sys.exit(str(hkFile) + ' does not exist.')
 
     fig = plot_rsl_branting_ratio(evtFile)
     fig.savefig("{}rsl_ratio.png".format(obsid),bbox_inches='tight', dpi=300)
