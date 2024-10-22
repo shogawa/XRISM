@@ -1,16 +1,25 @@
 #!/bin/sh
 
-export HEADAS=$TOOLS/heasoft/XRISM_15Oct2023_Build7/x86_64-pc-linux-gnu-libc2.31
-. $HEADAS/headas-init.sh
 pfiles_dir=pfiles
 mkdir -p $pfiles_dir
 export PFILES="`pwd`/${pfiles_dir};$HEADAS/syspfiles"
 
-infile=$1
-outfile=$2
-backfile=$3
-respfile=$4
+phafile=$1
+backfile=$2
+respfile=$3
+arffile=$4
 
-ftgrouppha infile=$infile backfile=$backfile respfile=$respfile outfile=$outfile grouptype=opt
+outphafile=`echo $phafile | sed 's/.pha/_obin.pha/'`
+outrmffile=`echo $respfile | sed 's/.rmf/_obin.rmf/'`
+outarffile=`echo $arffile | sed 's/.arf/_obin.arf/'`
+
+ftgrouppha infile=$phafile backfile=$backfile respfile=$respfile outfile=$outphafile grouptype=opt clobber=yes &
+ftrbnrmf infile=$respfile cmpmode=none ecmpmode=optimal phafile=$phafile outfile=$outrmffile inarffile=$arffile outarffile=$outarffile clobber=yes
+
+wait
+
+fparkey $backfile $outphafile BACKFILE
+fparkey $outrmffile $outphafile RESPFILE
+fparkey $outarffile $outphafile ANCRFILE
 
 rm -rf $pfiles_dir
