@@ -262,7 +262,7 @@ class XtendTools:
                 'source_dec='+str(source_dec),
                 'telescop='+str(telescop),
                 'instrume='+str(instrume),
-                'emapfile'+str(emapfile),
+                'emapfile='+str(emapfile),
                 'regmode='+str(regmode),
                 'regionfile='+str(regionfile),
                 'sourcetype='+str(sourcetype),
@@ -397,8 +397,8 @@ class XtendTools:
         if not os.path.isfile("region_xtd_src.reg"): sys.exit(str("region_xtd_src.reg") + ' does not exist.')
         with open("region_xtd_src.reg", "r") as f:
             s = f.read()
-            XDETX0=re.search(r'\(([\d\.]*),([\d\.]*),[\d\.]*,[\d\.]*,[\d\.]*\)', s).group(1)
-            XDETY0=re.search(r'\(([\d\.]*),([\d\.]*),[\d\.]*,[\d\.]*,[\d\.]*\)', s).group(2)
+            XDETX0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(1)
+            XDETY0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(2)
         source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XDETX0, Y0=XDETY0)
         xrtevtfile = 'raytrace_{0}xtd_p0{1}_boxreg_ptsrc.fits'.format(obsid, dataclass)
         self.xtd_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, source_ra=source_ra, source_dec=source_dec)
