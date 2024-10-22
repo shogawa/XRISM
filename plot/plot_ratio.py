@@ -107,9 +107,8 @@ def plot_rsl_branching_ratio_pix(evtFile):
     return fig
 
 def theoritical_br(v):
-    dtHR = 1024 - 150
-    dtMR = 256 - 37
-    v = v *1e-4
+    dtHR = 0.07072
+    dtMR = 0.01832
     Hp = np.exp(-2*v*dtHR)
     Mp = np.exp(-v*dtHR) * (np.exp(-v*dtMR) - np.exp(-v*dtHR))
     Ms = np.exp(-v*dtMR) * (np.exp(-v*dtMR) - np.exp(-v*dtHR))
