@@ -24,35 +24,6 @@ def get_argument():
     #argparser.add_argument('-ed', '--eventsdir', default='.', help='Eventfile directory path')
     return argparser.parse_args()
 
-def plot_rsl_branting_ratio(evtFile):
-    hdu = pyfits.open(evtFile)['EVENTS']
-    evt = hdu.data
-    exposure = hdu.header["EXPOSURE"]
-    Hp = evt[evt["ITYPE"]==0]
-    Mp = evt[evt["ITYPE"]==1]
-    Ms = evt[evt["ITYPE"]==2]
-    Lp = evt[evt["ITYPE"]==3]
-    Ls = evt[evt["ITYPE"]==4]
-    grades = evt["ITYPE"]
-    fig, ax = plt.subplots()
-    weights = np.ones(grades.size)/float(grades.size)
-    ax.hist(grades, weights=weights, bins=[0,1,2,3,4,5], align="mid", color="orange",width=0.5)
-    ax.tick_params(direction = "in", bottom=True, top=True, right=True, left=True)
-    ax.set_xlabel('Grade', fontsize=12)
-    ax.set_ylabel('Fraction', fontsize=12)
-    ax.set_title('Histogram of Resolve grade')
-    ax.set_ylim(0,1)
-    ax.set_xlim(-0.5,5)
-    ax.set_yticks(np.linspace(0,1,11))
-    ax.set_xticks(np.array([0, 1, 2, 3, 4])+0.25)
-    ax.set_xticklabels(["Hp", "Mp", "Ms", "Lp", "Ls"])
-    ax.text(0., 0.9, "N: {0}\nR: {1:0.3f}".format(Hp.size, Hp.size/grades.size), size=10)
-    ax.text(1., 0.9, "N: {0}\nR: {1:0.3f}".format(Mp.size, Mp.size/grades.size), size=10)
-    ax.text(2., 0.9, "N: {0}\nR: {1:0.3f}".format(Ms.size, Ms.size/grades.size), size=10)
-    ax.text(3., 0.9, "N: {0}\nR: {1:0.3f}".format(Lp.size, Lp.size/grades.size), size=10)
-    ax.text(4., 0.9, "N: {0}\nR: {1:0.3f}".format(Ls.size, Ls.size/grades.size), size=10)
-    return fig
-
 def plot_rsl_ghf(ghfFile, calghfFile, hkFile):
     pixnum = 36
     fig, axes = plt.subplots(
@@ -104,7 +75,6 @@ def plot_rsl_ghf(ghfFile, calghfFile, hkFile):
 if __name__ == "__main__":
     args = get_argument()
     obsid = args.obsid
-    evtFile = args.clevt
     feghfFile = args.feghf
     calghfFile = args.calghf
     hkFile = args.hkfile
@@ -115,13 +85,9 @@ if __name__ == "__main__":
     #calghfFile = eventsdir.joinpath('resolve/event_uf/{0}rsl_000_pxcal.ghf.gz'.format(obsid))
     #hkFile = eventsdir.joinpath('resolve/hk/{0}rsl_a0.hk1.gz'.format(obsid))
 
-    if not pathlib.Path(evtFile).exists(): sys.exit(str(evtFile) + ' does not exist.')
     if not pathlib.Path(feghfFile).exists(): sys.exit(str(feghfFile) + ' does not exist.')
     if not pathlib.Path(calghfFile).exists(): sys.exit(str(calghfFile) + ' does not exist.')
     if not pathlib.Path(hkFile).exists(): sys.exit(str(hkFile) + ' does not exist.')
-
-    fig = plot_rsl_branting_ratio(evtFile)
-    fig.savefig("{}rsl_ratio.png".format(obsid),bbox_inches='tight', dpi=300)
 
     fig = plot_rsl_ghf(feghfFile, calghfFile, hkFile)
     fig.savefig("{}rsl_ghf.png".format(obsid),bbox_inches='tight', dpi=300)
