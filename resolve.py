@@ -44,6 +44,7 @@ class ResolveTools:
         self.eventsdir =  pathlib.Path(eventsdir).resolve()
         self.productsdir =  pathlib.Path(productsdir).resolve()
         self.eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
+        self.eventfile_noLs = None
         self.ehkfile = '{0}.ehk.gz'.format(obsid)
 
         self.pixel_map = {
@@ -156,6 +157,25 @@ class ResolveTools:
             process = subprocess.Popen(['ftcopy', *inputs], text=True)
             process.wait()
             self.eventfile = outfile
+            return outfile
+
+    def rsl_remove_Ls(self, eventfile, obsid, filter):
+        if not os.path.isfile(eventfile):
+            print(str(eventfile) + ' does not exist.')
+            return 1
+        else:
+            infile = eventfile + "[EVENTS][(PI>=4000)&&(PI<=20000)&&(ITYPE<4)]"
+            outfile = "{0}rsl_p0px{1}_cl2_woLs.evt".format(obsid, filter)
+            inputs = [
+                'infile='+infile,
+                'outfile='+outfile,
+                'copyall=yes',
+                'clobber=yes',
+                'history=yes'
+            ]
+            process = subprocess.Popen(['ftcopy', *inputs], text=True)
+            process.wait()
+            self.eventfile_noLs = outfile
             return outfile
 
     def rsl_gain_gti(self, eventfile, eventsdir, obsid, filter):
@@ -622,19 +642,20 @@ class ResolveTools:
         eventsdir = self.eventsdir
         eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         regionfile = "region_RSL_det_27.reg"
-        specfile = "{0}rsl_Ls_excluded_src.pha".format(obsid)
-        outfile = "{0}rsl_Ls_excluded_srgr1.pha".format(obsid)
+        specfile = "{0}rsl_woLs_src.pha".format(obsid)
+        outfile = "{0}rsl_woLs_srgr1.pha".format(obsid)
         backfile = "NONE"
-        respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
-        ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
+        respfile = "{0}rsl_woLs_{1}.rmf".format(obsid, whichrmf)
+        ancrfile = "{0}rsl_woLs_{1}.arf".format(obsid, whichrmf)
         grouptype = "min"
         groupscale = "1"
         self.rsl_copy(eventsdir, obsid, filter)
-        eventfile = self.rsl_rise_time_screening_Ls_excluded(eventfile, obsid, filter)
-        self.rsl_lcextract(eventfile, obsid)
-        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
+        eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
         self.rsl_specextract(eventfile, specfile)
-        self.rsl_mkrmf(eventfile, respfile, whichrmf)
+        eventfile_noLs = self.rsl_remove_Ls(eventfile, obsid, filter)
+        self.rsl_lcextract(eventfile_noLs, obsid)
+        self.rsl_imgextract(eventfile_noLs, obsid, filter, mode='DET', bmin=4000, bmax=20000)
+        self.rsl_mkrmf(eventfile_noLs, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
