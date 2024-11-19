@@ -17,7 +17,6 @@ from matplotlib.colors import ListedColormap
 def get_argument():
     argparser = ArgumentParser(description='This is the Resolve Plot program.')
     argparser.add_argument('-oi', '--obsid', default='xa000162000', help='OBSID')
-    argparser.add_argument('-cl', '--clevt', help='Cleand event file')
     argparser.add_argument('-fe', '--feghf', help='Fe55 gain history file')
     argparser.add_argument('-cal', '--calghf', help='CAL pixel gain history file')
     argparser.add_argument('-hk', '--hkfile', help='HK file')
