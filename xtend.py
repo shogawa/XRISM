@@ -5,6 +5,7 @@ import datetime
 import os
 import pathlib
 import re
+import math
 import shutil
 import subprocess
 import sys
@@ -30,6 +31,7 @@ def get_argument():
     argparser.add_argument('-dc', '--dataclass', default='31100010', help='Filter ID')
     argparser.add_argument('-ed', '--eventsdir', default='..', help='Eventfile directory path')
     argparser.add_argument('-pd', '--productsdir', default='.', help='Products directory path')
+    argparser.add_argument('--imgonly', action='store_true', help='Flag for only image')
     return argparser.parse_args()
 
 class XtendTools:
@@ -99,7 +101,7 @@ class XtendTools:
                 f.write("-circle(920.0,1530.0,92.0)\n")
                 f.write("-circle(919.0,271.0,91.0)\n")
 
-    def xtd_imgextract(self, eventfile, obsid, dataclass, mode='DET', bmin=83, bmax=1667):
+    def xtd_imgextract(self, eventfile, obsid, dataclass, mode='sky', bmin=83, bmax=1667):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -114,10 +116,10 @@ class XtendTools:
                 './',
                 'yes',
                 'set image {0}'.format(mode),
-                'filter region exclude_calsources.reg',
+                #'filter region exclude_calsources.reg',
                 'filter pha_cutoff {0} {1}'.format(bmin, bmax),
                 'extract image',
-                'save image {0}xtd_p0{1}_detimg.fits clobber=yes'.format(obsid, dataclass),
+                'save image {0}xtd_p0{1}_{2}img.fits clobber=yes'.format(obsid, dataclass, mode),
                 'exit',
                 'no'
             ]
@@ -125,7 +127,7 @@ class XtendTools:
             results = process.communicate('\n'.join(commands))
             process.wait()
 
-    def xtd_specextract(self, eventfile, specfile, regionfile):
+    def xtd_specextract(self, eventfile, specfile, regionfile, mode='sky'):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -139,7 +141,7 @@ class XtendTools:
                 'read event {0}'.format(eventfile),
                 './',
                 'yes',
-                'set image det',
+                'set image {0}'.format(mode),
                 'filter region {0}'.format(regionfile),
                 'extract spectrum',
                 'save spec {0} clobber=yes'.format(specfile),
@@ -150,7 +152,7 @@ class XtendTools:
             results = process.communicate('\n'.join(commands))
             process.wait()
 
-    def xtd_lcextract(self, eventfile, outfile, regionfile, bmin='83', bmax='1667', binsize='128'):
+    def xtd_lcextract(self, eventfile, outfile, regionfile, bmin='83', bmax='1667', binsize='128', mode='sky'):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -164,7 +166,7 @@ class XtendTools:
                 'read event {0}'.format(eventfile),
                 './',
                 'yes',
-                'set image det',
+                'set image {0}'.format(mode),
                 'filter region {0}'.format(regionfile),
                 'filter pha_cutoff {0} {1}'.format(bmin, bmax),
                 'set binsize {0}'.format(binsize),
@@ -245,7 +247,7 @@ class XtendTools:
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
             process.wait()
 
-    def xtd_xaarfgen(self, xrtevtfile, respfile, ancrfile, source_ra, source_dec, emapfile, telescop='XRISM', instrume='XTEND', regmode='DET', regionfile='region_xtd_src.reg', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='300000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
+    def xtd_xaarfgen(self, xrtevtfile, respfile, ancrfile, source_ra, source_dec, emapfile, telescop='XRISM', instrume='XTEND', regmode='READEC', regionfile='region_xtd_src.reg', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='300000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
         if not os.path.isfile(emapfile):
             print(str(emapfile) + ' does not exist.')
             return 1
@@ -292,14 +294,14 @@ class XtendTools:
             process = subprocess.Popen(['xaarfgen', *inputs], text=True)
             process.wait()
 
-    def coordpnt(self, RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5):
+    def coordpnt(self, RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5, mode="SKY"):
         inputs =[
             'input={0},{1}'.format(X0, Y0),
             'outfile=NONE',
             'telescop=XRISM',
             'instrume=XTEND',
             'teldeffile=CALDB',
-            'startsys=DET',
+            'startsys={0}'.format(mode),
             'stopsys=RADEC',
             'ra={0}'.format(RA_NOM),
             'dec={0}'.format(DEC_NOM),
@@ -332,6 +334,25 @@ class XtendTools:
             results = process.communicate()
             PA_NOM = re.search(r'PA_NOM\s*=\s*([-\d\.]+)',results[0]).group(1)
             return RA_NOM, DEC_NOM, PA_NOM
+
+    def make_region(self, srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass):
+        if dataclass[0:3] == '300':
+            with open(srcregionfile, "w") as f:
+                f.write("fk5\n")
+                f.write('circle({0},{1},150")\n'.format(RA_NOM, DEC_NOM))
+                RA = float(RA_NOM) - math.cos(float(PA_NOM)-math.pi*0.5) * 2.5/60 *3
+                DEC = float(DEC_NOM) - math.sin(float(PA_NOM)-math.pi*0.5) * 2.5/60 *3
+                f.write('circle({0},{1},150")\n'.format(RA_NOM, DEC_NOM))
+        else:
+            with open(srcregionfile, "w") as f:
+                f.write("fk5\n")
+                f.write('box({0},{1},120.000",300.000",{2})\n'.format(RA_NOM, DEC_NOM, PA_NOM))
+            with open(bgdregionfile, "w") as f:
+                f.write("fk5\n")
+                RA = float(RA_NOM) - math.cos(float(PA_NOM)-math.pi*0.5) * 5/60 *3
+                DEC = float(DEC_NOM) - math.sin(float(PA_NOM)-math.pi*0.5) * 5/60 *3
+                f.write('box({0},{1},120.000",300.000",{2})\n'.format(RA, DEC, PA_NOM))
+        return 0
 
     def ftgrouppha(self, infile, outfile, backfile, respfile, grouptype, groupscale):
         if not os.path.isfile(infile):
@@ -379,11 +400,11 @@ class XtendTools:
         srcregionfile = "region_xtd_src.reg"
         bgdregionfile = "region_xtd_bgd.reg"
         self.xtd_copy(eventsdir, obsid, dataclass)
-        self.xtd_imgextract(eventfile, obsid, dataclass)
-        self.xtd_lcextract(eventfile, srclcfile, srcregionfile, binsize=binsize)
-        self.xtd_lcextract(eventfile, bgdlcfile, bgdregionfile, binsize=binsize)
-        self.xtd_specextract(eventfile, specfile, srcregionfile)
-        self.xtd_specextract(eventfile, backfile, bgdregionfile)
+        self.xtd_imgextract(eventfile, obsid, dataclass, mode='sky')
+        self.xtd_lcextract(eventfile, srclcfile, srcregionfile, binsize=binsize, mode='sky')
+        self.xtd_lcextract(eventfile, bgdlcfile, bgdregionfile, binsize=binsize, mode='sky')
+        self.xtd_specextract(eventfile, specfile, srcregionfile, mode='sky')
+        self.xtd_specextract(eventfile, backfile, bgdregionfile, mode='sky')
         self.xtd_mkrmf(specfile, respfile)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
@@ -394,17 +415,32 @@ class XtendTools:
         self.xtd_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, badimgfile=badimgfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
 
         RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
-        if not os.path.isfile("region_xtd_src.reg"): sys.exit(str("region_xtd_src.reg") + ' does not exist.')
-        with open("region_xtd_src.reg", "r") as f:
+        if not os.path.isfile(srcregionfile): sys.exit(str(srcregionfile) + ' does not exist.')
+        with open(srcregionfile, "r") as f:
             s = f.read()
-            XDETX0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(1)
-            XDETY0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(2)
-        source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XDETX0, Y0=XDETY0)
+            XTDX0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(1)
+            XTDY0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(2)
+        source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XTDX0, Y0=XTDY0, mode='SKY')
         xrtevtfile = 'raytrace_{0}xtd_p0{1}_boxreg_ptsrc.fits'.format(obsid, dataclass)
-        self.xtd_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, source_ra=source_ra, source_dec=source_dec)
+        self.xtd_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, source_ra=source_ra, source_dec=source_dec, regmode='RADEC')
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+    def xtd_img(self):
+        obsid = self.obsid
+        dataclass = self.dataclass
+        eventsdir = self.eventsdir
+        eventfile = '{0}xtd_p0{1}_cl.evt.gz'.format(obsid, dataclass)
+        srcregionfile = "region_xtd_src.reg"
+        bgdregionfile = "region_xtd_bgd.reg"
+        #self.xtd_copy(eventsdir, obsid, dataclass)
+        #self.xtd_imgextract(eventfile, obsid, dataclass)
+        RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
+        self.make_region(srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass)
+
+
+
 
 if __name__ == "__main__":
     args = get_argument()
@@ -413,4 +449,7 @@ if __name__ == "__main__":
     eventsdir = args.eventsdir
     productsdir = args.productsdir
     xtd = XtendTools(obsid, dataclass, eventsdir, productsdir)
-    xtd.xtd_products()
+    if args.imgonly:
+        xtd.xtd_img()
+    else:
+        xtd.xtd_products()
