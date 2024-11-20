@@ -145,7 +145,7 @@ class ResolveTools:
             print(str(eventfile) + ' does not exist.')
             return 1
         else:
-            infile = eventfile + "[EVENTS][(PI>=600) && ((((RISE_TIME+0.00075*DERIV_MAX)>46)&&((RISE_TIME+0.00075*DERIV_MAX)<58))&&ITYPE<4)]"
+            infile = eventfile + "[EVENTS][(PI>=600) && ((((RISE_TIME+0.00075*DERIV_MAX)>46)&&((RISE_TIME+0.00075*DERIV_MAX)<58))&&ITYPE<4)&&STATUS[4]==b0]"
             outfile = "{0}rsl_p0px{1}_cl2_Ls_excluded.evt".format(obsid, filter)
             inputs = [
                 'infile='+infile,
@@ -572,6 +572,19 @@ class ResolveTools:
             PA_NOM = re.search(r'PA_NOM\s*=\s*([-\d\.]+)',results[0]).group(1)
             return RA_NOM, DEC_NOM, PA_NOM
 
+    def make_region(self, outroot, RA_NOM, DEC_NOM, PA_NOM):
+        inputs =[
+            'instrume=RESOLVE',
+            'ra={0}'.format(RA_NOM),
+            'dec={0}'.format(DEC_NOM),
+            'roll={0}'.format(PA_NOM),
+            'pixlist="0:11,13:26,28:35"',
+            'outroot={0}'.format(outroot),
+            'clobber=yes'
+        ]
+        process = subprocess.Popen(['xamkregion', *inputs], stdout=subprocess.PIPE, text=True)
+        process.wait()
+
     def ftgrouppha(self, infile, outfile, backfile, respfile, grouptype, groupscale):
         if not os.path.isfile(infile):
             print(str(infile) + ' does not exist.')
@@ -634,6 +647,8 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+        
+        self.make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
     def rsl_products_Ls(self):
         obsid = self.obsid
@@ -670,6 +685,8 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+
+        self.make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
     def rsl_products_gain(self):
         obsid = self.obsid
