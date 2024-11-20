@@ -434,8 +434,8 @@ class XtendTools:
         eventfile = '{0}xtd_p0{1}_cl.evt.gz'.format(obsid, dataclass)
         srcregionfile = "region_xtd_src.reg"
         bgdregionfile = "region_xtd_bgd.reg"
-        #self.xtd_copy(eventsdir, obsid, dataclass)
-        #self.xtd_imgextract(eventfile, obsid, dataclass)
+        self.xtd_copy(eventsdir, obsid, dataclass)
+        self.xtd_imgextract(eventfile, obsid, dataclass)
         RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
         self.make_region(srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass)
 
