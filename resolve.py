@@ -164,7 +164,7 @@ class ResolveTools:
             print(str(eventfile) + ' does not exist.')
             return 1
         else:
-            infile = eventfile + "[EVENTS][(PI>=4000)&&(PI<=20000)&&(ITYPE<4)]"
+            infile = eventfile + "[EVENTS][(PI>=6000)&&(PI<=20000)&&(ITYPE<4)]"
             outfile = "{0}rsl_p0px{1}_cl2_woLs.evt".format(obsid, filter)
             inputs = [
                 'infile='+infile,
@@ -647,7 +647,7 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-        
+
         self.make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
     def rsl_products_Ls(self):
@@ -667,9 +667,9 @@ class ResolveTools:
         self.rsl_copy(eventsdir, obsid, filter)
         eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
         self.rsl_specextract(eventfile, specfile)
+        self.rsl_lcextract(eventfile, obsid)
+        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         eventfile_noLs = self.rsl_remove_Ls(eventfile, obsid, filter)
-        self.rsl_lcextract(eventfile_noLs, obsid)
-        self.rsl_imgextract(eventfile_noLs, obsid, filter, mode='DET', bmin=4000, bmax=20000)
         self.rsl_mkrmf(eventfile_noLs, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
