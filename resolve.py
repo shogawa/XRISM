@@ -423,7 +423,7 @@ class ResolveTools:
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
             process.wait()
 
-    def rsl_xaarfgen(self, xrtevtfile, emapfile, respfile, ancrfile, regionfile, source_ra, source_dec, telescop='XRISM', instrume='RESOLVE', regmode='DET', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='300000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', gatevalvefile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
+    def rsl_xaarfgen(self, xrtevtfile, emapfile, respfile, ancrfile, regionfile, source_ra, source_dec, telescop='XRISM', instrume='RESOLVE', regmode='DET', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='600000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', gatevalvefile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
         if not os.path.isfile(emapfile):
             print(str(emapfile) + ' does not exist.')
             return 1
@@ -572,13 +572,13 @@ class ResolveTools:
             PA_NOM = re.search(r'PA_NOM\s*=\s*([-\d\.]+)',results[0]).group(1)
             return RA_NOM, DEC_NOM, PA_NOM
 
-    def make_region(self, outroot, RA_NOM, DEC_NOM, PA_NOM):
+    def rsl_make_region(self, outroot, RA_NOM, DEC_NOM, PA_NOM, pixlist="0:11,13:26,28:35"):
         inputs =[
             'instrume=RESOLVE',
             'ra={0}'.format(RA_NOM),
             'dec={0}'.format(DEC_NOM),
             'roll={0}'.format(PA_NOM),
-            'pixlist="0:11,13:26,28:35"',
+            'pixlist={0}'.format(pixlist),
             'outroot={0}'.format(outroot),
             'clobber=yes'
         ]
@@ -647,8 +647,13 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+        grouptype = "optmin"
+        groupscale = "1"
+        outfile = "{0}rsl_woLs_src_obin1.pha".format(obsid)
+        self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
+        self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
-        self.make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
+        self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
     def rsl_products_Ls(self):
         obsid = self.obsid
@@ -685,8 +690,13 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+        grouptype = "optmin"
+        groupscale = "1"
+        outfile = "{0}rsl_woLs_src_obin1.pha".format(obsid)
+        self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
+        self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
-        self.make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
+        self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
     def rsl_products_gain(self):
         obsid = self.obsid
