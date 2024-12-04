@@ -247,7 +247,7 @@ class XtendTools:
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
             process.wait()
 
-    def xtd_xaarfgen(self, xrtevtfile, respfile, ancrfile, source_ra, source_dec, emapfile, telescop='XRISM', instrume='XTEND', regmode='READEC', regionfile='region_xtd_src.reg', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='300000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
+    def xtd_xaarfgen(self, xrtevtfile, respfile, ancrfile, source_ra, source_dec, emapfile, telescop='XRISM', instrume='XTEND', regmode='READEC', regionfile='region_xtd_src.reg', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='600000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
         if not os.path.isfile(emapfile):
             print(str(emapfile) + ' does not exist.')
             return 1
@@ -335,14 +335,16 @@ class XtendTools:
             PA_NOM = re.search(r'PA_NOM\s*=\s*([-\d\.]+)',results[0]).group(1)
             return RA_NOM, DEC_NOM, PA_NOM
 
-    def make_region(self, srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass):
+    def xtd_make_region(self, srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass):
         if dataclass[0:3] == '300':
             with open(srcregionfile, "w") as f:
                 f.write("fk5\n")
                 f.write('circle({0},{1},150")\n'.format(RA_NOM, DEC_NOM))
-                RA = float(RA_NOM) - math.cos(float(PA_NOM)-math.pi*0.5) * 2.5/60 *3
-                DEC = float(DEC_NOM) - math.sin(float(PA_NOM)-math.pi*0.5) * 2.5/60 *3
-                f.write('circle({0},{1},150")\n'.format(RA_NOM, DEC_NOM))
+            with open(bgdregionfile, "w") as f:
+                RA = float(RA_NOM) - math.cos(float(PA_NOM)-math.pi*0.5) * 5/60 *3
+                DEC = float(DEC_NOM) - math.sin(float(PA_NOM)-math.pi*0.5) * 5/60 *3
+                f.write("fk5\n")
+                f.write('circle({0},{1},150")\n'.format(RA, DEC))
         else:
             with open(srcregionfile, "w") as f:
                 f.write("fk5\n")
@@ -353,6 +355,19 @@ class XtendTools:
                 DEC = float(DEC_NOM) - math.sin(float(PA_NOM)-math.pi*0.5) * 5/60 *3
                 f.write('box({0},{1},120.000",300.000",{2})\n'.format(RA, DEC, PA_NOM))
         return 0
+
+    def rsl_make_region(self, outroot, RA_NOM, DEC_NOM, PA_NOM, pixlist="0:11,13:26,28:35"):
+        inputs =[
+            'instrume=RESOLVE',
+            'ra={0}'.format(RA_NOM),
+            'dec={0}'.format(DEC_NOM),
+            'roll={0}'.format(PA_NOM),
+            'pixlist={0}'.format(pixlist),
+            'outroot={0}'.format(outroot),
+            'clobber=yes'
+        ]
+        process = subprocess.Popen(['xamkregion', *inputs], stdout=subprocess.PIPE, text=True)
+        process.wait()
 
     def ftgrouppha(self, infile, outfile, backfile, respfile, grouptype, groupscale):
         if not os.path.isfile(infile):
@@ -412,7 +427,7 @@ class XtendTools:
         pixgtifile = '{0}xtd_a0{1}.fpix.gz'.format(obsid, dataclass)
         emapfile = '{0}xtd_a0{1}.expo'.format(obsid, dataclass)
         logfile = 'make_expo_{0}xtd_p0{1}.log'.format(obsid, dataclass)
-        self.xtd_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, badimgfile=badimgfile, pixgtifile=pixgtifile, outfile=emapfile, logfile=logfile)
+        self.xtd_xaexpmap(ehkfile=ehkfile, gtifile=eventfile, badimgfile=badimgfile, pixgtifile='NONE', outfile=emapfile, logfile=logfile)
 
         RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
         if not os.path.isfile(srcregionfile): sys.exit(str(srcregionfile) + ' does not exist.')
@@ -437,7 +452,8 @@ class XtendTools:
         self.xtd_copy(eventsdir, obsid, dataclass)
         self.xtd_imgextract(eventfile, obsid, dataclass)
         RA_NOM, DEC_NOM, PA_NOM = self.get_radec_nom(eventfile)
-        self.make_region(srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass)
+        self.xtd_make_region(srcregionfile, bgdregionfile, RA_NOM, DEC_NOM, PA_NOM, dataclass)
+        self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
 
 
