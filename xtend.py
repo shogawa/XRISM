@@ -60,6 +60,7 @@ class XtendTools:
         headas_syspfiles = os.environ.get("HEADAS", "") + "/syspfiles"
         pfiles_env = str(pfiles_dir.absolute()) + ";" + headas_syspfiles
         os.environ["PFILES"] = pfiles_env
+        self.logfile = pathlib.Path(productsdir).resolve().joinpath("run_" + now.strftime('%Y%m%d%H%M%S') + ".log")
 
     def __del__(self):
         shutil.rmtree(self.pfiles_path)
@@ -80,8 +81,8 @@ class XtendTools:
             print(str(orgevtfile) + ' does not exist.')
         elif not orgbimgfile.exists():
             print(str(orgbimgfile) + ' does not exist.')
-        elif not orgfpixfile.exists():
-            print(str(orgfpixfile) + ' does not exist.')
+        #elif not orgfpixfile.exists():
+        #    print(str(orgfpixfile) + ' does not exist.')
         elif not orgehkfile.exists():
             print(str(orgehkfile) + ' does not exist.')
         else:
@@ -101,7 +102,7 @@ class XtendTools:
                 f.write("-circle(920.0,1530.0,92.0)\n")
                 f.write("-circle(919.0,271.0,91.0)\n")
 
-    def xtd_imgextract(self, eventfile, obsid, dataclass, mode='sky', bmin=83, bmax=1667):
+    def xtd_imgextract(self, eventfile, obsid, dataclass, mode='sky', bmin=83, bmax=1665):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -125,6 +126,8 @@ class XtendTools:
             ]
             process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
             results = process.communicate('\n'.join(commands))
+            with open(self.logfile, "a") as o:
+                print("xselect <<EOF\n{}\nEOF".format('\n'.join(commands)), file=o)
             process.wait()
 
     def xtd_specextract(self, eventfile, specfile, regionfile, mode='sky'):
@@ -150,9 +153,11 @@ class XtendTools:
             ]
             process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
             results = process.communicate('\n'.join(commands))
+            with open(self.logfile, "a") as o:
+                print("xselect <<EOF\n{}\nEOF".format('\n'.join(commands)), file=o)
             process.wait()
 
-    def xtd_lcextract(self, eventfile, outfile, regionfile, bmin='83', bmax='1667', binsize='128', mode='sky'):
+    def xtd_lcextract(self, eventfile, outfile, regionfile, bmin='83', bmax='1665', binsize='128', mode='sky'):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -177,6 +182,8 @@ class XtendTools:
             ]
             process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
             results = process.communicate('\n'.join(commands))
+            with open(self.logfile, "a") as o:
+                print("xselect <<EOF\n{}\nEOF".format('\n'.join(commands)), file=o)
             process.wait()
 
     def xtd_mkrmf(self, infile, outfile, rmfparam='CALDB', eminin='200', dein='2,24', nchanin='5900,500', eminout='0.0', deout='6', nchanout='4096' ,clobber='yes'):
@@ -197,6 +204,8 @@ class XtendTools:
                 'clobber='+str(clobber)
             ]
             process = subprocess.Popen(['xtdrmf', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def xtd_xaexpmap(self, ehkfile, gtifile, badimgfile, pixgtifile, outfile, logfile, instrume='XTEND', outmaptype='EXPOSURE', delta='20.0', numphi='1', stopsys='SKY', instmap='CALDB', qefile='CALDB', contamifile='CALDB', vigfile='CALDB', obffile='CALDB', fwfile='CALDB', gvfile='CALDB', maskcalsrc='yes', fwtype='FILE', specmode='MONO', specfile='spec.fits', specform='FITS', evperchan='DEFAULT', abund='1', cols='0', covfac='1', clobber='yes', chatter='1'):
@@ -209,7 +218,7 @@ class XtendTools:
         elif not os.path.isfile(badimgfile):
             print(str(badimgfile) + ' does not exist.')
             return 1
-        elif not os.path.isfile(pixgtifile):
+        elif not os.path.isfile(pixgtifile) and pixgtifile!='NONE':
             print(str(pixgtifile) + ' does not exist.')
             return 1
         else:
@@ -245,6 +254,8 @@ class XtendTools:
                 'logfile='+str(logfile)
             ]
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def xtd_xaarfgen(self, xrtevtfile, respfile, ancrfile, source_ra, source_dec, emapfile, telescop='XRISM', instrume='XTEND', regmode='READEC', regionfile='region_xtd_src.reg', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='600000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
@@ -292,6 +303,8 @@ class XtendTools:
                 'imgfile='+str(imgfile)
             ]
             process = subprocess.Popen(['xaarfgen', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def coordpnt(self, RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5, mode="SKY"):
@@ -311,6 +324,8 @@ class XtendTools:
             'clobber=yes'
         ]
         process = subprocess.Popen(['coordpnt', *inputs], stdout=subprocess.PIPE, text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
         results = process.communicate()
         ra, dec = re.findall(r'([-\d\.]+)',results[0])
@@ -367,6 +382,8 @@ class XtendTools:
             'clobber=yes'
         ]
         process = subprocess.Popen(['xamkregion', *inputs], stdout=subprocess.PIPE, text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
 
     def ftgrouppha(self, infile, outfile, backfile, respfile, grouptype, groupscale):
@@ -383,6 +400,8 @@ class XtendTools:
                 'groupscale='+groupscale
             ]
             process = subprocess.Popen(['ftgrouppha', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def bgd_rmf_arf(self, srcfile, backfile, respfile, ancrfile):
@@ -391,10 +410,16 @@ class XtendTools:
             return 1
         else:
             process = subprocess.Popen(['fparkey', backfile, srcfile, 'BACKFILE'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             process = subprocess.Popen(['fparkey', respfile, srcfile, 'RESPFILE'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             process = subprocess.Popen(['fparkey', ancrfile, srcfile, 'ANCRFILE'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def xtd_products(self):
