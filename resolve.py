@@ -74,6 +74,7 @@ class ResolveTools:
         headas_syspfiles = os.environ.get("HEADAS", "") + "/syspfiles"
         pfiles_env = str(pfiles_dir.absolute()) + ";" + headas_syspfiles
         os.environ["PFILES"] = pfiles_env
+        self.logfile = pathlib.Path(productsdir).resolve().joinpath("run_" + now.strftime('%Y%m%d%H%M%S') + ".log")
 
     def __del__(self):
         shutil.rmtree(self.pfiles_path)
@@ -136,6 +137,8 @@ class ResolveTools:
                 'history=yes'
             ]
             process = subprocess.Popen(['ftcopy', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             self.eventfile = outfile
             return outfile
@@ -155,6 +158,8 @@ class ResolveTools:
                 'history=yes'
             ]
             process = subprocess.Popen(['ftcopy', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             self.eventfile = outfile
             return outfile
@@ -164,7 +169,7 @@ class ResolveTools:
             print(str(eventfile) + ' does not exist.')
             return 1
         else:
-            infile = eventfile + "[EVENTS][(PI>=6000)&&(PI<=20000)&&(ITYPE<4)]"
+            infile = eventfile + "[EVENTS][ITYPE<4]"
             outfile = "{0}rsl_p0px{1}_cl2_woLs.evt".format(obsid, filter)
             inputs = [
                 'infile='+infile,
@@ -174,6 +179,29 @@ class ResolveTools:
                 'history=yes'
             ]
             process = subprocess.Popen(['ftcopy', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+            self.eventfile_noLs = outfile
+            return outfile
+
+    def rsl_evtfile_for_rmf(self, eventfile, obsid, filter):
+        if not os.path.isfile(eventfile):
+            print(str(eventfile) + ' does not exist.')
+            return 1
+        else:
+            infile = eventfile + "[EVENTS][(PI>=6000)&&(PI<=20000)]"
+            outfile = "{0}rsl_p0px{1}_cl2_woLs_rmf.evt".format(obsid, filter)
+            inputs = [
+                'infile='+infile,
+                'outfile='+outfile,
+                'copyall=yes',
+                'clobber=yes',
+                'history=yes'
+            ]
+            process = subprocess.Popen(['ftcopy', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             self.eventfile_noLs = outfile
             return outfile
@@ -221,10 +249,16 @@ class ResolveTools:
         ]
 
         process = subprocess.Popen(['mgtime', *mgtime_inputs], text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
         process = subprocess.Popen(['rslgain', *rslgain_inputs], text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
         process = subprocess.Popen(['rslpha2pi', *rslpha2pi_inputs], text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
 
         self.eventfile = outfile
@@ -281,7 +315,7 @@ class ResolveTools:
         results = process.communicate('\n'.join(commands))
         process.wait()
 
-    def rsl_imgextract(self, eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000):
+    def rsl_imgextract(self, eventfile, obsid, filter, mode='DET', bmin=4000, bmax=19999):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -302,6 +336,8 @@ class ResolveTools:
             ]
             process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
             results = process.communicate('\n'.join(commands))
+            with open(self.logfile, "a") as o:
+                print("xselect <<EOF\n{}\nEOF".format('\n'.join(commands)), file=o)
             process.wait()
 
     def rsl_specextract(self, eventfile, specfile, pixel='0:11,13:26,28:35', grade='0:0'):
@@ -325,9 +361,11 @@ class ResolveTools:
             ]
             process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
             results = process.communicate('\n'.join(commands))
+            with open(self.logfile, "a") as o:
+                print("xselect <<EOF\n{}\nEOF".format('\n'.join(commands)), file=o)
             process.wait()
 
-    def rsl_lcextract(self, eventfile, obsid, bmin=4000, bmax=20000, binsize='128'):
+    def rsl_lcextract(self, eventfile, obsid, bmin=4000, bmax=19999, binsize='128'):
         if not os.path.isfile(eventfile):
             print(str(eventfile) + ' does not exist.')
             return 1
@@ -348,6 +386,8 @@ class ResolveTools:
             ]
             process = subprocess.Popen(['xselect'], stdin=subprocess.PIPE, text=True)
             results = process.communicate('\n'.join(commands))
+            with open(self.logfile, "a") as o:
+                print("xselect <<EOF\n{}\nEOF".format('\n'.join(commands)), file=o)
             process.wait()
 
     def rsl_mkrmf(self, infile, respfile, whichrmf, regmode='DET', resolist='0', regionfile='NONE', pixlist='0-11,13-26,28-35', eminin='0.0', dein='0.5', nchanin='60000', useingrd='no', eminout='0.0', deout='0.5', nchanout='60000', clobber='yes', rmfparamfile='CALDB'):
@@ -376,6 +416,8 @@ class ResolveTools:
             ]
             if 'comb' in whichrmf: inputs += ['splitrmf=yes', 'elcbinfac=16', 'splitcomb=yes']
             process = subprocess.Popen(['rslmkrmf', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def rsl_xaexpmap(self, ehkfile, gtifile, pixgtifile, outfile, logfile, instrume='RESOLVE', badimgfile='NONE', outmaptype='EXPOSURE', delta='20.0', numphi='1', stopsys='SKY', instmap='CALDB', qefile='CALDB', contamifile='CALDB', vigfile='CALDB', obffile='CALDB', fwfile='CALDB', gvfile='CALDB', maskcalsrc='yes', fwtype='FILE', specmode='MONO', specfile='spec.fits', specform='FITS', evperchan='DEFAULT', abund='1', cols='0', covfac='1', clobber='yes', chatter='1'):
@@ -421,6 +463,8 @@ class ResolveTools:
                 'logfile='+str(logfile)
             ]
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def rsl_xaarfgen(self, xrtevtfile, emapfile, respfile, ancrfile, regionfile, source_ra, source_dec, telescop='XRISM', instrume='RESOLVE', regmode='DET', sourcetype='POINT', erange='0.3 18.0 0 0', numphoton='600000', minphoton='100', teldeffile='CALDB', qefile='CALDB', contamifile='CALDB', obffile='CALDB', fwfile='CALDB', gatevalvefile='CALDB', onaxisffile='CALDB', onaxiscfile='CALDB', mirrorfile='CALDB', obstructfile='CALDB', frontreffile='CALDB', backreffile='CALDB', pcolreffile='CALDB', scatterfile='CALDB', mode='h', clobber='yes', seed='7', imgfile='NONE'):
@@ -469,6 +513,8 @@ class ResolveTools:
                 'imgfile='+str(imgfile)
             ]
             process = subprocess.Popen(['xaarfgen', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def rsl_nxbgen(self, cl_evt, ehkfile, nxb_ehk, nxb_evt):
@@ -490,6 +536,8 @@ class ResolveTools:
                 'time='+str('TIME')
             ]
             process = subprocess.Popen(['maketime', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
             inputs = [
@@ -508,6 +556,8 @@ class ResolveTools:
                 'ycolh='+str('DETX')
             ]
             process = subprocess.Popen(['extractor', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
             inputs = [
@@ -529,6 +579,13 @@ class ResolveTools:
                 'outnxbehk='+str('rslnxb.ehk')
             ]
             process = subprocess.Popen(['rslnxbgen', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+
+            process = subprocess.Popen(['fparkey', '1', rslnxb.pi, 'BACKSCAL'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def rsl_coordpnt(self, RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5):
@@ -548,6 +605,8 @@ class ResolveTools:
             'clobber=yes'
         ]
         process = subprocess.Popen(['coordpnt', *inputs], stdout=subprocess.PIPE, text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
         results = process.communicate()
         ra, dec = re.findall(r'([-\d\.]+)',results[0])
@@ -583,6 +642,8 @@ class ResolveTools:
             'clobber=yes'
         ]
         process = subprocess.Popen(['xamkregion', *inputs], stdout=subprocess.PIPE, text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
         process.wait()
 
     def ftgrouppha(self, infile, outfile, backfile, respfile, grouptype, groupscale):
@@ -599,6 +660,8 @@ class ResolveTools:
                 'groupscale='+groupscale
             ]
             process = subprocess.Popen(['ftgrouppha', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def bgd_rmf_arf(self, srcfile, backfile, respfile, ancrfile):
@@ -607,10 +670,16 @@ class ResolveTools:
             return 1
         else:
             process = subprocess.Popen(['fparkey', backfile, srcfile, 'BACKFILE'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             process = subprocess.Popen(['fparkey', respfile, srcfile, 'RESPFILE'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
             process = subprocess.Popen(['fparkey', ancrfile, srcfile, 'ANCRFILE'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
             process.wait()
 
     def rsl_products(self):
@@ -620,8 +689,8 @@ class ResolveTools:
         eventsdir = self.eventsdir
         eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         regionfile = "region_RSL_det_27.reg"
-        specfile = "{0}rsl_src.pha".format(obsid)
-        outfile = "{0}rsl_srgr1.pha".format(obsid)
+        specfile = "{0}rsl_src.pi".format(obsid)
+        outfile = "{0}rsl_srgr1.pi".format(obsid)
         backfile = "NONE"
         respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
@@ -630,7 +699,7 @@ class ResolveTools:
         self.rsl_copy(eventsdir, obsid, filter)
         eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
-        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
+        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=19999)
         self.rsl_specextract(eventfile, specfile)
         self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
@@ -649,7 +718,7 @@ class ResolveTools:
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
         grouptype = "optmin"
         groupscale = "1"
-        outfile = "{0}rsl_woLs_src_obin1.pha".format(obsid)
+        outfile = "{0}rsl_woLs_src_obin1.pi".format(obsid)
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
@@ -662,8 +731,8 @@ class ResolveTools:
         eventsdir = self.eventsdir
         eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         regionfile = "region_RSL_det_27.reg"
-        specfile = "{0}rsl_woLs_src.pha".format(obsid)
-        outfile = "{0}rsl_woLs_srgr1.pha".format(obsid)
+        specfile = "{0}rsl_woLs_src.pi".format(obsid)
+        outfile = "{0}rsl_woLs_srgr1.pi".format(obsid)
         backfile = "NONE"
         respfile = "{0}rsl_woLs_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_woLs_{1}.arf".format(obsid, whichrmf)
@@ -671,11 +740,12 @@ class ResolveTools:
         groupscale = "1"
         self.rsl_copy(eventsdir, obsid, filter)
         eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
+        eventfile = self.rsl_remove_Ls(eventfile, obsid, filter)
         self.rsl_specextract(eventfile, specfile)
         self.rsl_lcextract(eventfile, obsid)
-        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
-        eventfile_noLs = self.rsl_remove_Ls(eventfile, obsid, filter)
-        self.rsl_mkrmf(eventfile_noLs, respfile, whichrmf)
+        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=19999)
+        eventfile_rmf = self.rsl_evtfile_for_rmf(eventfile, obsid, filter)
+        self.rsl_mkrmf(eventfile_rmf, respfile, whichrmf)
 
         ehkfile = '{0}.ehk.gz'.format(obsid)
         pixgtifile = '{0}rsl_px{1}_exp.gti.gz'.format(obsid, filter)
@@ -692,7 +762,7 @@ class ResolveTools:
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
         grouptype = "optmin"
         groupscale = "1"
-        outfile = "{0}rsl_woLs_src_obin1.pha".format(obsid)
+        outfile = "{0}rsl_woLs_src_obin1.pi".format(obsid)
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
 
@@ -704,8 +774,8 @@ class ResolveTools:
         whichrmf = self.whichrmf
         eventsdir = self.eventsdir
         regionfile = "region_RSL_det_27.reg"
-        specfile = "{0}rsl_src.pha".format(obsid)
-        outfile = "{0}rsl_srgr1.pha".format(obsid)
+        specfile = "{0}rsl_src.pi".format(obsid)
+        outfile = "{0}rsl_srgr1.pi".format(obsid)
         backfile = "NONE"
         respfile = "{0}rsl_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_{1}.arf".format(obsid, whichrmf)
@@ -716,7 +786,7 @@ class ResolveTools:
         eventfile = self.rsl_gain_gti(eventfile, eventsdir, obsid, filter)
         eventfile = self.rsl_rise_time_screening(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
-        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
+        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=19999)
         self.rsl_specextract(eventfile, specfile)
         self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
@@ -740,8 +810,8 @@ class ResolveTools:
         whichrmf = self.whichrmf
         eventsdir = self.eventsdir
         regionfile = "region_RSL_det_27.reg"
-        specfile = "{0}rsl_Ls_excluded_src.pha".format(obsid)
-        outfile = "{0}rsl_Ls_excluded_srgr1.pha".format(obsid)
+        specfile = "{0}rsl_Ls_excluded_src.pi".format(obsid)
+        outfile = "{0}rsl_Ls_excluded_srgr1.pi".format(obsid)
         backfile = "NONE"
         respfile = "{0}rsl_Ls_excluded_{1}.rmf".format(obsid, whichrmf)
         ancrfile = "{0}rsl_Ls_excluded_{1}.arf".format(obsid, whichrmf)
@@ -752,7 +822,7 @@ class ResolveTools:
         eventfile = self.rsl_gain_gti(eventfile, eventsdir, obsid, filter)
         eventfile = self.rsl_rise_time_screening_Ls_excluded(eventfile, obsid, filter)
         self.rsl_lcextract(eventfile, obsid)
-        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=20000)
+        self.rsl_imgextract(eventfile, obsid, filter, mode='DET', bmin=4000, bmax=19999)
         self.rsl_specextract(eventfile, specfile)
         self.rsl_mkrmf(eventfile, respfile, whichrmf)
 
@@ -775,7 +845,7 @@ class ResolveTools:
         filter = self.filter
         whichrmf = self.whichrmf
         pixel_map = self.pixel_map
-        specfile = "{0}rsl_src_pix{1:02d}.pha".format(obsid, pix)
+        specfile = "{0}rsl_src_pix{1:02d}.pi".format(obsid, pix)
         respfile = "{0}rsl_{1}_pix{2:02d}.rmf".format(obsid, whichrmf, pix)
         ancrfile = "{0}rsl_{1}_pix{2:02d}.arf".format(obsid, whichrmf, pix)
         regionfile = 'region_RSL_det_pix{0:02d}.reg'.format(pix)
