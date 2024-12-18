@@ -583,7 +583,7 @@ class ResolveTools:
                 print(*process.args, sep=" ", file=o)
             process.wait()
 
-            process = subprocess.Popen(['fparkey', '1', rslnxb.pi, 'BACKSCAL'], text=True)
+            process = subprocess.Popen(['fparkey', '1', 'rslnxb.pi', 'BACKSCAL'], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
             process.wait()
