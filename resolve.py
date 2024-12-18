@@ -45,7 +45,9 @@ class ResolveTools:
         self.productsdir =  pathlib.Path(productsdir).resolve()
         self.eventfile = '{0}rsl_p0px{1}_cl.evt.gz'.format(obsid, filter)
         self.eventfile_noLs = None
+        self.eventfile_for_rmf = None
         self.ehkfile = '{0}.ehk.gz'.format(obsid)
+        self.optgrppifile = None
 
         self.pixel_map = {
             23:[1,6], 24:[2,6], 26:[3,6], 34:[4,6], 32:[5,6], 30:[6,6],
@@ -203,7 +205,7 @@ class ResolveTools:
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
             process.wait()
-            self.eventfile_noLs = outfile
+            self.eventfile_for_rmf = outfile
             return outfile
 
     def rsl_gain_gti(self, eventfile, eventsdir, obsid, filter):
@@ -533,7 +535,8 @@ class ResolveTools:
                 'outfile='+str('ehkSelA.gti'),
                 'expr='+str('T_SAA_SXS>0 && ELV<-5 && DYE_ELV>5'),
                 'compact='+str('no'),
-                'time='+str('TIME')
+                'time='+str('TIME'),
+                'clobber=yes'
             ]
             process = subprocess.Popen(['maketime', *inputs], text=True)
             with open(self.logfile, "a") as o:
@@ -553,7 +556,8 @@ class ResolveTools:
                 'tcol='+str('TIME'),
                 'ecol='+str('PI'),
                 'xcolh='+str('DETX'),
-                'ycolh='+str('DETX')
+                'ycolh='+str('DETX'),
+                'clobber=yes'
             ]
             process = subprocess.Popen(['extractor', *inputs], text=True)
             with open(self.logfile, "a") as o:
@@ -576,7 +580,8 @@ class ResolveTools:
                 'expr='+str('(PI>=600) && ((RISE_TIME+0.00075*DERIV_MAX)>46) && ((RISE_TIME+0.00075*DERIV_MAX)<58) && (ITYPE==0) && (STATUS[4]==b0) && (PIXEL!=27)'),
                 'outpifile='+str('rslnxb.pi'),
                 'outnxbfile='+str('rslnxb.evt'),
-                'outnxbehk='+str('rslnxb.ehk')
+                'outnxbehk='+str('rslnxb.ehk'),
+                'clobber=yes'
             ]
             process = subprocess.Popen(['rslnxbgen', *inputs], text=True)
             with open(self.logfile, "a") as o:
@@ -587,6 +592,10 @@ class ResolveTools:
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
             process.wait()
+
+            if self.optgrppifile != None:
+                self.ftrbnrmf("newdiag60000.rmf.gz", "newdiag60000_obin1.rmf", phafile=self.optgrppifile, cmpmode="phafile")
+
 
     def rsl_coordpnt(self, RA_NOM, DEC_NOM, PA_NOM, X0=3.5, Y0=3.5):
         inputs =[
@@ -664,6 +673,26 @@ class ResolveTools:
                 print(*process.args, sep=" ", file=o)
             process.wait()
 
+    def ftrbnrmf(self, infile, outfile, phafile="none", cmpmode="none", ecmpmode="none", inarffile="none", outarffile="none"):
+        if not os.path.isfile(infile):
+            print(str(infile) + ' does not exist.')
+            return 1
+        else:
+            inputs = [
+                'infile='+infile,
+                'outfile='+outfile,
+                'cmpmode='+cmpmode,
+                'ecmpmode='+ecmpmode,
+                'inarffile='+inarffile,
+                'outarffile='+outarffile,
+                'phafile='+phafile,
+                'clobber=yes'
+            ]
+            process = subprocess.Popen(['ftrbnrmf', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+
     def bgd_rmf_arf(self, srcfile, backfile, respfile, ancrfile):
         if not os.path.isfile(srcfile):
             print(str(srcfile) + ' does not exist.')
@@ -681,6 +710,34 @@ class ResolveTools:
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
             process.wait()
+
+    def optrbin(self, specfile, backfile, respfile, ancrfile):
+        if not os.path.isfile(specfile):
+            print(str(specfile) + ' does not exist.')
+            return 1
+        else:
+            outgrppifile = pathlib.PurePath(specfile).stem + "_grpobin1.pi"
+            outrmffile = pathlib.PurePath(respfile).stem + "_obin1.rmf"
+            outpifile = pathlib.PurePath(specfile).stem + "_obin1.pi"
+
+            self.ftgrouppha(specfile, outgrppifile, backfile, respfile, "optmin", "1")
+            self.bgd_rmf_arf(outgrppifile, backfile, respfile, ancrfile)
+            self.ftrbnrmf(respfile, outrmffile, phafile=outgrppifile, cmpmode="phafile")
+            inputs = [
+                'infile='+specfile,
+                'outfile='+outpifile,
+                'phafile='+outgrppifile,
+                'properr=no',
+                'error=poiss-0',
+                'clobber=yes'
+            ]
+            process = subprocess.Popen(['ftrbnpha', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+            self.bgd_rmf_arf(outpifile, backfile, outrmffile, ancrfile)
+
+            self.optgrppifile = outgrppifile
 
     def rsl_products(self):
         obsid = self.obsid
@@ -716,11 +773,7 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-        grouptype = "optmin"
-        groupscale = "1"
-        outfile = "{0}rsl_woLs_src_obin1.pi".format(obsid)
-        self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
-        self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+        self.optrbin(specfile, backfile, respfile, ancrfile)
 
         self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
@@ -760,11 +813,7 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-        grouptype = "optmin"
-        groupscale = "1"
-        outfile = "{0}rsl_woLs_src_obin1.pi".format(obsid)
-        self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
-        self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
+        self.optrbin(specfile, backfile, respfile, ancrfile)
 
         self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
@@ -879,4 +928,5 @@ if __name__ == "__main__":
     else:
         rsl.rsl_products()
     if args.rslnxbgen:
+        shutil.copy('/home/ogawa/work/tools/heasoft/xrism/newdiag60000.rmf.gz', rsl.productsdir)
         rsl.rsl_nxbgen(rsl.eventfile, rsl.ehkfile, nxb_ehk='/home/ogawa/work/tools/heasoft/xrism/merged_reduced_rev3_fix2.ehk.gz', nxb_evt='/home/ogawa/work/tools/heasoft/xrism/merged_nxb_resolve_gtifix.evt.gz')
