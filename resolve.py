@@ -417,6 +417,10 @@ class ResolveTools:
                 'clobber='+str(clobber)
             ]
             if 'comb' in whichrmf: inputs += ['splitrmf=yes', 'elcbinfac=16', 'splitcomb=yes']
+            process = subprocess.Popen(['punlearn', 'rslmkrmf'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
             process = subprocess.Popen(['rslmkrmf', *inputs], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
@@ -464,6 +468,10 @@ class ResolveTools:
                 'chatter='+str(chatter),
                 'logfile='+str(logfile)
             ]
+            process = subprocess.Popen(['punlearn', 'xaexpmap'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
@@ -514,6 +522,10 @@ class ResolveTools:
                 'seed='+str(seed),
                 'imgfile='+str(imgfile)
             ]
+            process = subprocess.Popen(['punlearn', 'xaarfgen'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
             process = subprocess.Popen(['xaarfgen', *inputs], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)

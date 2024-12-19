@@ -203,6 +203,10 @@ class XtendTools:
                 'nchanout='+str(nchanout),
                 'clobber='+str(clobber)
             ]
+            process = subprocess.Popen(['punlearn', 'xtdrmf'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
             process = subprocess.Popen(['xtdrmf', *inputs], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
@@ -253,6 +257,10 @@ class XtendTools:
                 'chatter='+str(chatter),
                 'logfile='+str(logfile)
             ]
+            process = subprocess.Popen(['punlearn', 'xaexpmap'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
             process = subprocess.Popen(['xaexpmap', *inputs], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
@@ -302,6 +310,10 @@ class XtendTools:
                 'seed='+str(seed),
                 'imgfile='+str(imgfile)
             ]
+            process = subprocess.Popen(['punlearn', 'xaarfgen'], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
             process = subprocess.Popen(['xaarfgen', *inputs], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
