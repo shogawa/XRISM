@@ -87,10 +87,10 @@ class XtendTools:
             print(str(orgehkfile) + ' does not exist.')
         else:
 
-            if pathlib.Path(eventfile).exists(): pathlib.Path(eventfile).unlink()
-            if pathlib.Path(bimgfile).exists(): pathlib.Path(bimgfile).unlink()
-            if pathlib.Path(fpixfile).exists(): pathlib.Path(fpixfile).unlink()
-            if pathlib.Path(ehkfile).exists(): pathlib.Path(ehkfile).unlink()
+            if pathlib.Path(eventfile).exists() or pathlib.Path(eventfile).is_symlink(): pathlib.Path(eventfile).unlink()
+            if pathlib.Path(bimgfile).exists() or pathlib.Path(bimgfile).is_symlink(): pathlib.Path(bimgfile).unlink()
+            if pathlib.Path(fpixfile).exists() or pathlib.Path(fpixfile).is_symlink(): pathlib.Path(fpixfile).unlink()
+            if pathlib.Path(ehkfile).exists() or pathlib.Path(ehkfile).is_symlink(): pathlib.Path(ehkfile).unlink()
 
             os.symlink(orgevtfile, eventfile)
             os.symlink(orgbimgfile, bimgfile)
@@ -472,7 +472,9 @@ class XtendTools:
             s = f.read()
             XTDX0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(1)
             XTDY0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(2)
-        source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XTDX0, Y0=XTDY0, mode='SKY')
+        #source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XTDX0, Y0=XTDY0, mode='SKY')
+        source_ra = XTDX0
+        source_dec = XTDY0
         xrtevtfile = 'raytrace_{0}xtd_p0{1}_boxreg_ptsrc.fits'.format(obsid, dataclass)
         self.xtd_xaarfgen(xrtevtfile=xrtevtfile, emapfile=emapfile, respfile=respfile, ancrfile=ancrfile, source_ra=source_ra, source_dec=source_dec, regmode='RADEC')
 
