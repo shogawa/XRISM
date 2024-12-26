@@ -416,22 +416,28 @@ class XtendTools:
                 print(*process.args, sep=" ", file=o)
             process.wait()
 
+    def fparkey(self, value, fitsfile, keyword, comm=" ", add="no", insert='0'):
+        inputs = [
+            'value='+str(value),
+            'fitsfile='+str(fitsfile),
+            'keyword='+str(keyword),
+            'comm='+str(comm),
+            'add='+str(add),
+            'insert='+str(insert)
+        ]
+        process = subprocess.Popen(['fparkey', *inputs], text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
+        process.wait()
+
     def bgd_rmf_arf(self, srcfile, backfile, respfile, ancrfile):
         if not os.path.isfile(srcfile):
             print(str(srcfile) + ' does not exist.')
             return 1
         else:
-            process = subprocess.Popen(['fparkey', backfile, srcfile, 'BACKFILE'], text=True)
-            with open(self.logfile, "a") as o:
-                print(*process.args, sep=" ", file=o)
-            process.wait()
-            process = subprocess.Popen(['fparkey', respfile, srcfile, 'RESPFILE'], text=True)
-            with open(self.logfile, "a") as o:
-                print(*process.args, sep=" ", file=o)
-            process.wait()
-            process = subprocess.Popen(['fparkey', ancrfile, srcfile, 'ANCRFILE'], text=True)
-            with open(self.logfile, "a") as o:
-                print(*process.args, sep=" ", file=o)
+            self.fparkey(backfile, srcfile, 'BACKFILE')
+            self.fparkey(respfile, srcfile, 'RESPFILE')
+            self.fparkey(ancrfile, srcfile, 'ANCRFILE')
             process.wait()
 
     def xtd_products(self):
