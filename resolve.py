@@ -26,7 +26,7 @@ def shell_source(script):
 
 def get_argument():
     argparser = ArgumentParser(description='This is the Resolve data reduction program.')
-    argparser.add_argument('-oi', '--obsid', default='xa000162000', help='OBSID')
+    argparser.add_argument('-oi', '--obsid', default=None, help='OBSID')
     argparser.add_argument('-fi', '--filter', default='1000', help='Filter ID')
     argparser.add_argument('-wr', '--whichrmf', default='S', help='RMF size')
     argparser.add_argument('-ed', '--eventsdir', default='..', help='Eventfile directory path')
@@ -98,9 +98,9 @@ class ResolveTools:
         elif not orgehkfile.exists():
             print(str(orgehkfile) + ' does not exist.')
         else:
-            if pathlib.Path(eventfile).exists(): pathlib.Path(eventfile).unlink()
-            if pathlib.Path(pixgtifile).exists(): pathlib.Path(pixgtifile).unlink()
-            if pathlib.Path(ehkfile).exists(): pathlib.Path(ehkfile).unlink()
+            if pathlib.Path(eventfile).exists() or pathlib.Path(eventfile).is_symlink(): pathlib.Path(eventfile).unlink()
+            if pathlib.Path(pixgtifile).exists() or pathlib.Path(pixgtifile).is_symlink(): pathlib.Path(pixgtifile).unlink()
+            if pathlib.Path(ehkfile).exists() or pathlib.Path(ehkfile).is_symlink(): pathlib.Path(ehkfile).unlink()
 
             os.symlink(orgevtfile, eventfile)
             os.symlink(orgpixgtifile, pixgtifile)
@@ -705,23 +705,86 @@ class ResolveTools:
                 print(*process.args, sep=" ", file=o)
             process.wait()
 
+    def ftrbnpha(self, infile, outfile, phafile):
+        if not os.path.isfile(infile):
+            print(str(infile) + ' does not exist.')
+            return 1
+        else:
+            inputs = [
+                'infile='+infile,
+                'outfile='+outfile,
+                'phafile='+phafile,
+                'properr=no',
+                'error=poiss-0',
+                'clobber=yes'
+            ]
+            process = subprocess.Popen(['ftrbnpha', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+
+    def fparkey(self, value, fitsfile, keyword, comm=" ", add="no", insert='0'):
+        inputs = [
+            'value='+str(value),
+            'fitsfile='+str(fitsfile),
+            'keyword='+str(keyword),
+            'comm='+str(comm),
+            'add='+str(add),
+            'insert='+str(insert)
+        ]
+        process = subprocess.Popen(['fparkey', *inputs], text=True)
+        with open(self.logfile, "a") as o:
+            print(*process.args, sep=" ", file=o)
+        process.wait()
+
     def bgd_rmf_arf(self, srcfile, backfile, respfile, ancrfile):
         if not os.path.isfile(srcfile):
             print(str(srcfile) + ' does not exist.')
             return 1
         else:
-            process = subprocess.Popen(['fparkey', backfile, srcfile, 'BACKFILE'], text=True)
+            self.fparkey(backfile, srcfile, 'BACKFILE')
+            self.fparkey(respfile, srcfile, 'RESPFILE')
+            self.fparkey(ancrfile, srcfile, 'ANCRFILE')
+
+    def optrbin_comb(self, specfile, backfile, respfile, ancrfile):
+        if not os.path.isfile(specfile):
+            print(str(specfile) + ' does not exist.')
+            return 1
+        else:
+            outgrppifile = pathlib.PurePath(specfile).stem + "_grpobin1.pi"
+            outrmffile = pathlib.PurePath(respfile).stem + "_obin1.rmf"
+            respfile1 = respfile.replace("_comb", "")
+            respfile2 = respfile.replace("_comb", "_elc")
+            outrmffile1 = pathlib.PurePath(respfile1).stem + "_obin1.rmf"
+            outrmffile2 = pathlib.PurePath(respfile2).stem + "_obin1.rmf"
+            outpifile = pathlib.PurePath(specfile).stem + "_obin1.pi"
+
+            self.ftgrouppha(specfile, outgrppifile, backfile, respfile, "optmin", "1")
+            self.bgd_rmf_arf(outgrppifile, backfile, respfile, ancrfile)
+            self.ftrbnrmf(respfile1, outrmffile1, phafile=outgrppifile, cmpmode="phafile")
+            self.ftrbnrmf(respfile2, outrmffile2, phafile=outgrppifile, cmpmode="phafile")
+            shutil.copy(outrmffile1, outrmffile)
+            process = subprocess.Popen(['ftappend', outrmffile2+"[EBOUNDS]", outrmffile], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
             process.wait()
-            process = subprocess.Popen(['fparkey', respfile, srcfile, 'RESPFILE'], text=True)
+            process = subprocess.Popen(['ftappend', outrmffile2+"[MATRIX]", outrmffile], text=True)
             with open(self.logfile, "a") as o:
                 print(*process.args, sep=" ", file=o)
             process.wait()
-            process = subprocess.Popen(['fparkey', ancrfile, srcfile, 'ANCRFILE'], text=True)
-            with open(self.logfile, "a") as o:
-                print(*process.args, sep=" ", file=o)
-            process.wait()
+            self.fparkey("EBOUNDS", outrmffile+"[1]", "EXTENSION", add="yes")
+            self.fparkey("1", outrmffile+"[1]", "EXTVER", add="yes")
+            self.fparkey("MATRIX", outrmffile+"[2]", "EXTENSION", add="yes")
+            self.fparkey("1", outrmffile+"[2]", "EXTVER", add="yes")
+            self.fparkey("EBOUNDS", outrmffile+"[3]", "EXTENSION", add="yes")
+            self.fparkey("2", outrmffile+"[3]", "EXTVER", add="yes")
+            self.fparkey("MATRIX", outrmffile+"[4]", "EXTENSION", add="yes")
+            self.fparkey("2", outrmffile+"[4]", "EXTVER", add="yes")
+            self.ftrbnpha(specfile, outpifile, outgrppifile)
+            self.bgd_rmf_arf(outpifile, backfile, outrmffile, ancrfile)
+
+            self.optgrppifile = outgrppifile
+
 
     def optrbin(self, specfile, backfile, respfile, ancrfile):
         if not os.path.isfile(specfile):
@@ -735,18 +798,7 @@ class ResolveTools:
             self.ftgrouppha(specfile, outgrppifile, backfile, respfile, "optmin", "1")
             self.bgd_rmf_arf(outgrppifile, backfile, respfile, ancrfile)
             self.ftrbnrmf(respfile, outrmffile, phafile=outgrppifile, cmpmode="phafile")
-            inputs = [
-                'infile='+specfile,
-                'outfile='+outpifile,
-                'phafile='+outgrppifile,
-                'properr=no',
-                'error=poiss-0',
-                'clobber=yes'
-            ]
-            process = subprocess.Popen(['ftrbnpha', *inputs], text=True)
-            with open(self.logfile, "a") as o:
-                print(*process.args, sep=" ", file=o)
-            process.wait()
+            self.ftrbnpha(specfile, outpifile, outgrppifile)
             self.bgd_rmf_arf(outpifile, backfile, outrmffile, ancrfile)
 
             self.optgrppifile = outgrppifile
@@ -785,7 +837,10 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-        self.optrbin(specfile, backfile, respfile, ancrfile)
+        if 'comb' in whichrmf:
+            self.optrbin_comb(specfile, backfile, respfile, ancrfile)
+        else:
+            self.optrbin(specfile, backfile, respfile, ancrfile)
 
         self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
@@ -825,7 +880,10 @@ class ResolveTools:
 
         self.ftgrouppha(specfile, outfile, backfile, respfile, grouptype, groupscale)
         self.bgd_rmf_arf(outfile, backfile, respfile, ancrfile)
-        self.optrbin(specfile, backfile, respfile, ancrfile)
+        if 'comb' in whichrmf:
+            self.optrbin_comb(specfile, backfile, respfile, ancrfile)
+        else:
+            self.optrbin(specfile, backfile, respfile, ancrfile)
 
         self.rsl_make_region(obsid+'rsl', RA_NOM, DEC_NOM, PA_NOM)
 
