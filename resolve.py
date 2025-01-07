@@ -329,7 +329,6 @@ class ResolveTools:
                 './',
                 'yes',
                 'set image {0}'.format(mode),
-                'filter region exclude_calsources.reg',
                 'filter pha_cutoff {0} {1}'.format(bmin, bmax),
                 'extract image',
                 'save image {0}rsl_p0px{1}_detimg.fits clobber=yes'.format(obsid, filter),
