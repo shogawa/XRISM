@@ -1,15 +1,16 @@
 #! /usr/bin/env python3
 
 import sys
+from argparse import ArgumentParser
 
 linelist = {
 "FeKa":[
 [6404.148,1.613,0.278],
 [6391.19,2.487,0.207],
 [6403.295,1.965,0.182],
-[6389.106,2.339,0.066],
+[6389.106,4.433,0.066],#modified from [6389.106,2.339,0.066],
 [6400.653,4.833,0.106],
-[6390.275,4.433,0.065],
+[6390.275,2.339,0.065],#modified from [6390.275,4.433,0.065],
 [6402.077,2.803,0.094]
 ],
 "FeKb":[
@@ -25,14 +26,26 @@ linelist = {
 [7459.874,3.039,0.064],
 [7458.029,4.476,0.028]
 ],
+#Holzer
+#"MnKa":[
+#[5898.853,1.715,0.353],
+#[5887.743,2.361,0.229],
+#[5897.867,2.043,0.141],
+#[5886.495,4.216,0.11],
+#[5894.829,4.499,0.079],
+#[5896.532,2.663,0.066],
+#[5899.417,0.969,0.005]
+#],
+#$CALDB/data/gen/bcf/ah_gen_linefit_20140101v003
 "MnKa":[
-[5898.853,1.715,0.353],
-[5887.743,2.361,0.229],
-[5897.867,2.043,0.141],
-[5886.495,4.216,0.11],
-[5894.829,4.499,0.079],
-[5896.532,2.663,0.066],
-[5899.417,0.969,0.005]
+[5898.882,1.7145,0.3523],
+[5897.898,2.0442,0.1409],
+[5894.864,4.4985,0.07892],
+[5896.566,2.6616,0.06624],
+[5899.444,0.97669,0.01818],
+[5902.712,1.5528,0.004475],
+[5887.772,2.3604,0.2283],
+[5886.528,4.216,0.1106]
 ],
 "CrKa":[
 [5414.874,1.457,0.378],
@@ -98,10 +111,6 @@ linelist = {
 xcm = """#PyXspec: Output generated from Xset.save().  DO NOT MODIFY.
 
 statistic cstat
-data 1:1 xa000162000rsl_pixgr1.pha
-resp 1 xa000162000rsl_X_comb.rmf
-arf 1 xa000162000rsl_X.arf
-ignore 1:**-2.0 10.0-**
 
 method leven 10 0.01
 abund angr
@@ -110,15 +119,20 @@ cosmo 70 0 0.73
 xset delta 0.01
 systematic 0
 model  powerlaw + zashift(zashift(gsmooth(lorentz)*constant))
-            1.7          1        1.5        1.5        2.5        2.5
+            2.0          1        1.0        1.0        3.0        3.0
            0.01       0.01          0          0      1e+20      1e+24
-        0.00145      -0.01     -0.999     -0.999         10         10
-              0       0.01    -100000    -100000     100000     100000
+              0      -0.01       -1.0       -1.0         10         10
+              0       0.01       -1.0       -1.0         10         10
           0.001       0.05          0          0         10         20
               0      -0.01         -1         -1          1          1
           0.001       0.01          0          0      1e+10      1e+10
 bayes off
 """
+
+def get_argument():
+    argparser = ArgumentParser(description='This program makes the line profile XCM file.')
+    argparser.add_argument('-l', '--line', default='FeKa', help='Line name: FeKa, NiKa, MnKa, CrKa, CoKa, CuKa, or Kb lines')
+    return argparser.parse_args()
 
 def modify_lorentz(line):
     lines = linelist[line]
@@ -145,10 +159,8 @@ def modify_lorentz(line):
         f.write(new_content)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <number_of_lorentz> <input_file>")
-        sys.exit(1)
+    args = get_argument()
 
-    line = sys.argv[1]
+    line = args.line
 
     modify_lorentz(line)

@@ -55,9 +55,9 @@ linelist = {
 [6404.148,1.613,0.278],
 [6391.19,2.487,0.207],
 [6403.295,1.965,0.182],
-[6389.106,2.339,0.066],
+[6389.106,4.433,0.066],#modified from [6389.106,2.339,0.066],
 [6400.653,4.833,0.106],
-[6390.275,4.433,0.065],
+[6390.275,2.339,0.065],#modified from [6390.275,4.433,0.065],
 [6402.077,2.803,0.094]
 ],
 "FeKb":[
@@ -73,14 +73,26 @@ linelist = {
 [7459.874,3.039,0.064],
 [7458.029,4.476,0.028]
 ],
+#Holzer
+#"MnKa":[
+#[5898.853,1.715,0.353],
+#[5887.743,2.361,0.229],
+#[5897.867,2.043,0.141],
+#[5886.495,4.216,0.11],
+#[5894.829,4.499,0.079],
+#[5896.532,2.663,0.066],
+#[5899.417,0.969,0.005]
+#],
+#$CALDB/data/gen/bcf/ah_gen_linefit_20140101v003
 "MnKa":[
-[5898.853,1.715,0.353],
-[5887.743,2.361,0.229],
-[5897.867,2.043,0.141],
-[5886.495,4.216,0.11],
-[5894.829,4.499,0.079],
-[5896.532,2.663,0.066],
-[5899.417,0.969,0.005]
+[5898.882,1.7145,0.3523],
+[5897.898,2.0442,0.1409],
+[5894.864,4.4985,0.07892],
+[5896.566,2.6616,0.06624],
+[5899.444,0.97669,0.01818],
+[5902.712,1.5528,0.004475],
+[5887.772,2.3604,0.2283],
+[5886.528,4.216,0.1106]
 ],
 "CrKa":[
 [5414.874,1.457,0.378],
@@ -213,7 +225,7 @@ m1.powerlaw.norm.frozen = False
 m1.gsmooth.Sig_6keV.frozen = False
 xs.Fit.perform()
 
-xs.Fit.error("{0} {1}".format(m1.zashift.Redshift.index, m1.gsmooth.Sig_6keV.index))
+xs.Fit.error("{0} {1} {2}".format(m1.zashift.Redshift.index, m1.gsmooth.Sig_6keV.index, m1.constant.factor.index))
 #xs.Fit.error("1. {0} {1}".format(m1.zashift.Redshift.index, m1.gsmooth.Sig_6keV.index))
 
 errn = m1.gsmooth.Sig_6keV.values[0] - m1.gsmooth.Sig_6keV.error[0]
@@ -221,7 +233,7 @@ errp = m1.gsmooth.Sig_6keV.error[1] - m1.gsmooth.Sig_6keV.values[0]
 value = m1.gsmooth.Sig_6keV.values[0]
 gsmooth = np.array([value, errp, errn])*1000
 print("sigma: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth))
-print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2.35))
+print("FWHM: {0:.3f}+{1:.3f}-{2:.3f}".format(*gsmooth*2*(2*np.log(2))**0.5))
 
 errn = m1.zashift.Redshift.values[0] - m1.zashift.Redshift.error[0]
 errp = m1.zashift.Redshift.error[1] - m1.zashift.Redshift.values[0]
@@ -229,6 +241,11 @@ value = m1.zashift.Redshift.values[0]
 redshift = np.array([value, errp, errn])
 print("Redshift: {0}+{1}-{2}".format(*redshift))
 print("offset: {0}+{1}-{2}".format(*redshift*line_energy))
+
+errn = m1.constant.factor.values[0] - m1.constant.factor.error[0]
+errp = m1.constant.factor.error[1] - m1.constant.factor.values[0]
+value = m1.constant.factor.values[0]
+constfactor = np.array([value, errp, errn])
 
 plot_data = plot_parameters("data del")
 
@@ -268,7 +285,8 @@ color=cmp(3)
 txt = target.replace('GC', 'GC ').replace('IC', 'IC ').replace('-', '$-$').replace('CenA', 'Centaurus A')
 txt += " " + line.replace("Ka", "K$\\alpha$").replace("Kb", "K$\\beta$")
 txt += "\n$\sigma$: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth)
-txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth*2.35)
+txt += "\nFWHM: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ eV".format(*gsmooth*2*(2*np.log(2))**0.5)
+txt += "\nrel. I: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$".format(*constfactor)
 txt += "\n$z$: ${0:.6f}^{{+{1:.6f}}}_{{-{2:.6f}}}$".format(*redshift)
 txt += "\n$cz$: ${0:.3f}^{{+{1:.3f}}}_{{-{2:.3f}}}$ km/s".format(*redshift*c)
 axes[0].text(0.01, 0.50, txt, transform=axes[0].transAxes, size=12)
