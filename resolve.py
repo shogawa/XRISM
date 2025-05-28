@@ -555,8 +555,22 @@ class ResolveTools:
             process.wait()
 
             inputs = [
+                'infile='+str(ehkfile),
+                'outfile='+str('ehkSelB.gti'),
+                'expr='+str('T_SAA_SXS>0 && DYE_ELV>5 && CORTIME>6'),
+                'compact='+str('no'),
+                'time='+str('TIME'),
+                'clobber=yes'
+            ]
+            process = subprocess.Popen(['maketime', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+
+            inputs = [
                 'filename='+str(nxb_evt),
-                'eventsout='+str('merged_nxb_resolve_gtifix_ehkSel.evt'),
+                #'eventsout='+str('merged_nxb_resolve_gtifix_ehkSel.evt'),
+                'eventsout='+str('NXBv2_trendmerge_wGTI_EHK_VCLno27_fix_ehkSel.evt'),
                 'imgfile='+str('NONE'),
                 'phafile='+str('NONE'),
                 'fitsbinlc='+str('NONE'),
@@ -576,15 +590,47 @@ class ResolveTools:
             process.wait()
 
             inputs = [
-                'infile='+str(cl_evt),
+                'filename='+str(cl_evt),
+                'eventsout='+str('src_cl_ehkSel.evt'),
+                'imgfile='+str('NONE'),
+                'phafile='+str('NONE'),
+                'fitsbinlc='+str('NONE'),
+                'regionfile='+str('NONE'),
+                'timefile='+str('ehkSelB.gti'),
+                'xcolf='+str('X'),
+                'ycolf='+str('Y'),
+                'tcol='+str('TIME'),
+                'ecol='+str('PI'),
+                'xcolh='+str('DETX'),
+                'ycolh='+str('DETX'),
+                'clobber=yes'
+            ]
+            process = subprocess.Popen(['extractor', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+
+            inputs = [
+                'infile='+str('src_cl_ehkSel.evt[EVENTS]'),
+                'outfile='+str('src_cl_ehkSel_evSel.evt'),
+                'expression='+str('(PI>=600) && ((RISE_TIME+0.00075*DERIV_MAX)>46) && ((RISE_TIME+0.00075*DERIV_MAX)<58) && (ITYPE==0) && (STATUS[4]==b0) && (PIXEL!=27)'),
+                'clobber=yes'
+            ]
+            process = subprocess.Popen(['ftselect', *inputs], text=True)
+            with open(self.logfile, "a") as o:
+                print(*process.args, sep=" ", file=o)
+            process.wait()
+
+            inputs = [
+                'infile='+str('src_cl_ehkSel_evSel.evt'),
                 'ehkfile='+str(ehkfile),
                 'regfile='+str('NONE'),
                 'pixels='+str('-'),
-                'innxbfile='+str('merged_nxb_resolve_gtifix_ehkSel.evt'),
+                'innxbfile='+str('NXBv2_trendmerge_wGTI_EHK_VCLno27_fix_ehkSel.evt'),
                 'innxbehk='+str(nxb_ehk),
                 'database='+str('LOCAL'),
                 'db_location='+str('./'),
-                'timefirst='+str('-700'),
+                'timefirst='+str('-150'),
                 'timelast='+str('+150'),
                 'SORTCOL='+str('CORTIME'),
                 'sortbin='+str('0,6,8,10,12,99'),
@@ -998,4 +1044,4 @@ if __name__ == "__main__":
         rsl.rsl_products()
     if args.rslnxbgen:
         shutil.copy('/home/ogawa/work/tools/heasoft/xrism/newdiag60000.rmf.gz', rsl.productsdir)
-        rsl.rsl_nxbgen(rsl.eventfile, rsl.ehkfile, nxb_ehk='/home/ogawa/work/tools/heasoft/xrism/merged_reduced_rev3_fix2.ehk.gz', nxb_evt='/home/ogawa/work/tools/heasoft/xrism/merged_nxb_resolve_gtifix.evt.gz')
+        rsl.rsl_nxbgen(rsl.eventfile, rsl.ehkfile, nxb_ehk='NXBv2_merged_sorted_fix.ehk.gz', nxb_evt='NXBv2_trendmerge_wGTI_EHK_VCLno27_fix.evt')
