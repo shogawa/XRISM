@@ -630,7 +630,7 @@ class ResolveTools:
                 'innxbehk='+str(nxb_ehk),
                 'database='+str('LOCAL'),
                 'db_location='+str('./'),
-                'timefirst='+str('-150'),
+                'timefirst='+str('-700'),
                 'timelast='+str('+150'),
                 'SORTCOL='+str('CORTIME'),
                 'sortbin='+str('0,6,8,10,12,99'),

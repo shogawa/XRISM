@@ -438,7 +438,6 @@ class XtendTools:
             self.fparkey(backfile, srcfile, 'BACKFILE')
             self.fparkey(respfile, srcfile, 'RESPFILE')
             self.fparkey(ancrfile, srcfile, 'ANCRFILE')
-            process.wait()
 
     def xtd_products(self):
         obsid = self.obsid
@@ -476,8 +475,8 @@ class XtendTools:
         if not os.path.isfile(srcregionfile): sys.exit(str(srcregionfile) + ' does not exist.')
         with open(srcregionfile, "r") as f:
             s = f.read()
-            XTDX0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(1)
-            XTDY0=re.search(r'\(([\d\.]*),([\d\.]*),.+\)', s).group(2)
+            XTDX0=re.search(r'\(([-\d\.]*),([-\d\.]*),.+\)', s).group(1)
+            XTDY0=re.search(r'\(([-\d\.]*),([-\d\.]*),.+\)', s).group(2)
         #source_ra, source_dec = self.coordpnt(RA_NOM, DEC_NOM, PA_NOM, X0=XTDX0, Y0=XTDY0, mode='SKY')
         source_ra = XTDX0
         source_dec = XTDY0
