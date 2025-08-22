@@ -55,8 +55,8 @@ xs.Fit.query = "yes"
 xs.Plot.xAxis = "kev"
 xs.Plot.add = True
 xs.Plot.device = "/null"
-
 xs.Fit.statMethod = "cstat"
+
 
 xs.Xset.parallel.leven = 12
 xs.Xset.parallel.error = 12
@@ -179,3 +179,4 @@ for ax in axes:
 axes[0].set_title(r'Hp spectrum in Mn K$\alpha$ from Fe55 Filter')
 
 fig.savefig("{}_mnka.pdf".format(target.replace(" ", "_")),bbox_inches='tight', dpi=300,transparent=True)
+fig.savefig("{}_mnka.png".format(target.replace(" ", "_")),bbox_inches='tight', dpi=300)

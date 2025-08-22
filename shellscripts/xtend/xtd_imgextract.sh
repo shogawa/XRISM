@@ -22,6 +22,9 @@ filter region exclude_calsources.reg
 filter pha_cutoff 83 1667
 extract image
 save image ${obsid}xtd_p0${dataclass}_detimg.fits clobber=yes
+set image SKY
+extract image
+save image ${obsid}xtd_p0${dataclass}_skyimg.fits clobber=yes
 exit
 no
 EOF
