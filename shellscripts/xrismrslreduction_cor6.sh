@@ -71,7 +71,7 @@ logfile=make_expo_${obsid}rsl_p0px1000.log
 fparkey fitsfile=${obsid}rsl_p0px1000.expo keyword=OPTAOFFX value=0.0 comm="optical axis X offset reset to 0"
 fparkey fitsfile=${obsid}rsl_p0px1000.expo keyword=OPTAOFFY value=0.0 comm="optical axis Y offset reset to 0"
 
-ftcopy infile="${obsid}rsl_p0px1000_cl3.evt[EVENTS][(PI>=6000)&&(PI<=20000)&&(ITYPE<4)]" outfile=${obsid}rsl_p0px1000_UPR.evt copyall=yes clobber=yes history=yes
+#ftcopy infile="${obsid}rsl_p0px1000_cl3.evt[EVENTS][(PI>=6000)&&(PI<=20000)&&(ITYPE<4)]" outfile=${obsid}rsl_p0px1000_UPR.evt copyall=yes clobber=yes history=yes
 
 rm -rf $pfiles_dir/xaarfgen.par
 rm -rf $pfiles_dir/xaxmaarfgen.par
@@ -113,6 +113,9 @@ phafile=${obsid}rsl_src.pi
 backfile=NONE
 respfile=${obsid}rsl_X_UPR_comb.rsp
 arffile=NONE
+
+ftedit "${respfile}[MATRIX,1]" ENERG_LO 1 0.0004
+ftedit "${respfile=}[MATRIX,2]" ENERG_LO 1 0.007
 
 outgrpphafile=`echo $phafile | sed 's/.pi/_grpobin.pi/'`
 
